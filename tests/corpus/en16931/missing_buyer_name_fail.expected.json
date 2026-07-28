@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-missing-buyer-name-fail",
+  "description": "BT-44 present but empty.",
+  "input": {
+    "file": "missing_buyer_name_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-009"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-009": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-009": "BT-44"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

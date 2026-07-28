@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-no-invoice-lines-fail",
+  "description": "Header-only document with no invoice lines.",
+  "input": {
+    "file": "no_invoice_lines_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-010"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-011"
+    ],
+    "failure_classes": {
+      "CDL-PROV-010": "cardinality"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

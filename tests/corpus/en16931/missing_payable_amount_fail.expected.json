@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-missing-payable-amount-fail",
+  "description": "BT-115 absent.",
+  "input": {
+    "file": "missing_payable_amount_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-013"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-025"
+    ],
+    "failure_classes": {
+      "CDL-PROV-013": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-013": "BT-115"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

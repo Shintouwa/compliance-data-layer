@@ -1,0 +1,13 @@
+{
+  "spec_id": "peppol-bis-3.0",
+  "jurisdiction": "EU",
+  "version": "RESOLVE_IN_WEEK_1",
+  "syntaxes": ["UBL-2.1"],
+  "schematron": ["peppol-bis-3.0/PEPPOL-BIS-3.0.sch", "en16931/EN16931-UBL-model.sch"],
+  "codelists": ["ISO4217", "ISO3166", "UNECE_REC20", "UNTDID5305", "UNCL1001"],
+  "scenario_map": {},
+  "identifier_rules": {},
+  "archival_years": null,
+  "issuance_window_days": null,
+  "ruleset_hash": "COMPUTED_AT_BUILD"
+}

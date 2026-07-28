@@ -1,0 +1,96 @@
+# architecture.md Part I §3.5.
+#
+# M0 scope: apps/validator and tests/corpus only. The database, web-app and
+# queue guards from §3.5 are present below but self-activating — each is gated
+# on the existence of the files it checks, so it starts running in the same
+# commit that introduces them rather than being remembered later. §4.4 of the
+# alignment review is explicit that the guards get forgotten otherwise.
+name: ci
+
+on: [pull_request, push]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - uses: actions/setup-java@v4          # KoSIT cross-check only
+        with: { distribution: temurin, java-version: 21 }
+
+      - run: pnpm install --frozen-lockfile
+      - run: pip install -e "apps/validator[dev]"
+
+      # --- static analysis: all blocking ---
+      - name: typecheck
+        run: pnpm tsc --noEmit
+      - name: lint
+        run: pnpm eslint . --max-warnings 0
+      - name: python types
+        run: cd apps/validator && mypy --strict src/
+
+      # --- tests ---
+      - name: unit tests
+        run: pnpm vitest run && cd apps/validator && pytest -q
+
+      - name: GOLDEN CORPUS TESTS          # the important one
+        run: cd apps/validator && python -m validator.cli.corpus_runner ../../tests/corpus
+
+      # KoSIT validates EN 16931 and XRechnung only. It has no knowledge of
+      # PINT AE, KSeF or any Gulf profile — cross-checking a PINT-AE rule
+      # against it produces a guaranteed spurious failure (§3.5).
+      #
+      # Emits a WARNING rather than a silent pass while the version is
+      # unresolved. A cross-check that quietly succeeds without running is worse
+      # than one that fails: it reports agreement with a reference
+      # implementation that was never invoked.
+      - name: KoSIT cross-check
+        run: |
+          version=$(jq -r '.cross_check.kosit_validator_version' packages/config/specs.json)
+          if [ "$version" = "RESOLVE_IN_WEEK_1" ]; then
+            echo "::warning file=packages/config/specs.json::KoSIT cross-check NOT RUN - validator version is still the RESOLVE_IN_WEEK_1 sentinel, and every shipped rule is a provisional CDL-PROV-* id outside the comparable prefix set. This is a KNOWN GAP, not a pass. architecture.md Part I §1.2, §3.5."
+            exit 0
+          fi
+          ./scripts/kosit-crosscheck.sh
+
+      - name: OpenAPI contract check
+        run: ./scripts/contract-check.sh
+
+      # --- schema safety (M1: activate with packages/db) ---
+      - name: migration dry-run on Neon branch
+        if: hashFiles('scripts/neon-branch-migrate.sh') != ''
+        env: { NEON_API_KEY: '${{ secrets.NEON_API_KEY }}' }
+        run: ./scripts/neon-branch-migrate.sh
+      - name: RLS coverage
+        if: hashFiles('scripts/assert-rls-coverage.sh') != ''
+        run: ./scripts/assert-rls-coverage.sh
+      - name: corpus trigger coverage
+        if: hashFiles('scripts/assert-corpus-triggers.sh') != ''
+        run: ./scripts/assert-corpus-triggers.sh
+      - name: queue registration coverage
+        if: hashFiles('scripts/assert-queue-coverage.sh') != ''
+        run: ./scripts/assert-queue-coverage.sh
+
+      # --- supply chain ---
+      - name: dependency audit
+        run: |
+          pnpm audit --audit-level high
+          pip install pip-audit
+          pip-audit --strict -r <(pip freeze)
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # M0 has no production deployment: every profile still carries the
+      # RESOLVE_IN_WEEK_1 sentinel, so the sidecar would refuse every request it
+      # received. Deployment activates with M1, when the sidecar is wrapped and
+      # the first spec version is resolved.
+      - name: Refuse to deploy an unresolved validator
+        run: |
+          echo "::notice::Deployment is inert until at least one spec version is resolved from its primary source. architecture.md Part II · M1."

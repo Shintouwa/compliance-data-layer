@@ -1,0 +1,39 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-buyer-identifier-missing-fail",
+  "description": "Buyer PartyTaxScheme absent entirely. Distinct from an empty element: value_shape carries len null rather than len 0.",
+  "input": {
+    "file": "buyer_identifier_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-041"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-042"
+    ],
+    "failure_classes": {
+      "CDL-PROV-041": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-041": "BT-48"
+    },
+    "value_shapes": {
+      "CDL-PROV-041": {
+        "len": null,
+        "charset": null,
+        "regex_class": null,
+        "expected": "^[0-9]{15}$"
+      }
+    }
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

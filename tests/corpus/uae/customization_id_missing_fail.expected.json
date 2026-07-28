@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-customization-id-missing-fail",
+  "description": "Document does not declare a CustomizationID.",
+  "input": {
+    "file": "customization_id_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-044"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-044": "missing_mandatory"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-unit-code-not-in-rec20-fail",
+  "description": "Unit of measure is free text, not a Rec 20 code.",
+  "input": {
+    "file": "unit_code_not_in_rec20_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-019"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-020"
+    ],
+    "failure_classes": {
+      "CDL-PROV-019": "invalid_code"
+    },
+    "business_terms": {
+      "CDL-PROV-019": "BT-130"
+    },
+    "value_shapes": {
+      "CDL-PROV-019": {
+        "len": 4,
+        "charset": "mixed",
+        "regex_class": "[A-Z]{1}[a-z]{2}[^A-Za-z0-9]{1}",
+        "expected": "^[A-Z0-9]{1,3}$"
+      }
+    }
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

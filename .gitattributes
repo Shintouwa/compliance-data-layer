@@ -1,0 +1,33 @@
+# Line endings are CONFORMANCE-CRITICAL here, not a style preference.
+#
+# `ruleset_hash` is the sha256 of the bytes of every .sch file and every code
+# list a profile declares (apps/validator/src/validator/engine.py,
+# compile_ruleset). architecture.md Part I §2.9 makes that hash the thing that
+# makes a validation result reproducible and replayable.
+#
+# Without this file, git checks the same ruleset out as CRLF on Windows and LF
+# on Linux, the two produce DIFFERENT ruleset hashes, and the corpus row written
+# by a developer's machine cannot be reproduced by CI or by production. The
+# specs.json drift test would catch it — after wasting an afternoon.
+#
+# Normalise everything to LF in the working tree, everywhere.
+* text=auto eol=lf
+
+# Conformance artefacts: never let a platform touch these.
+*.sch     text eol=lf
+*.xml     text eol=lf
+*.json    text eol=lf
+*.py      text eol=lf
+
+# The Makefile requires tabs; CRLF also breaks recipe parsing on some shells.
+Makefile  text eol=lf
+*.sh      text eol=lf
+
+# Generated contract artefacts — diffed byte-for-byte by scripts/contract-check.sh.
+packages/contracts/validator.openapi.json text eol=lf
+packages/contracts/validator.d.ts         text eol=lf
+
+# Binary
+*.docx    binary
+*.pdf     binary
+*.png     binary

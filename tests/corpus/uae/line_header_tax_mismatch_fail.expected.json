@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-line-header-tax-mismatch-fail",
+  "description": "Header BT-106 does not equal the sum of BT-131.",
+  "input": {
+    "file": "line_header_tax_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-011"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-011": "arithmetic_mismatch"
+    },
+    "business_terms": {
+      "CDL-PROV-011": "BT-106"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

@@ -1,0 +1,74 @@
+# 🔒 HUMAN-OWNED (the `saxonche` pin) — architecture.md Part I §1.8, CLAUDE.md §4.3
+#
+# The saxonche pin is EXACT and human-owned. It ships native binaries; a range
+# specifier here means a silent engine swap between two deploys, which changes
+# validation results without changing a single line of our code. That is the
+# exact failure class §1.1 exists to prevent.
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cdl-validator"
+version = "0.1.0"
+description = "Compliance Data Layer — validator sidecar (deployable 2 of 2)"
+readme = "README.md"
+requires-python = "==3.12.*"
+
+dependencies = [
+  # 🔒 EXACT PIN — do not widen, do not bump without a full corpus run.
+  "saxonche==13.0.0",
+
+  # architecture.md §1.2: lxml 5.x specified. 5.x is EOL for Python 3.12 wheels;
+  # 6.1.1 is the current line and is API-compatible for everything parsers/ uses
+  # (etree, XPath, QName). Flagged for human confirmation — see M0 handover note.
+  "lxml==6.1.1",
+
+  # architecture.md §1.2: FastAPI 0.11x. 0.119.1 is the top of that band.
+  "fastapi==0.119.1",
+  "pydantic==2.13.4",
+  "uvicorn[standard]==0.51.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy==2.3.0",
+  "pytest==9.1.1",
+  "httpx==0.28.1",
+  "lxml-stubs==0.5.1",
+]
+
+[project.scripts]
+cdl-validate = "validator.cli.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/validator"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/validator/specs" = "validator/specs"
+"src/validator/codelists" = "validator/codelists"
+
+# ---------------------------------------------------------------------------
+# mypy --strict. architecture.md §3.6.
+#
+# There is no `ignore_missing_imports` escape hatch for saxonche here. The Saxon
+# boundary is typed by a hand-written stub in stubs/saxonche.pyi so that
+# engine.py is checked against a real signature rather than against Any.
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "stubs"
+namespace_packages = true
+explicit_package_bases = true
+warn_unreachable = true
+disallow_any_unimported = true
+show_error_codes = true
+pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-markers --strict-config"
+xfail_strict = true

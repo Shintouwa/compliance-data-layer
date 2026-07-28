@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "peppol-bis-3.0-missing-customization-id-fail",
+  "description": "CustomizationID absent.",
+  "input": {
+    "file": "missing_customization_id_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "peppol-bis-3.0",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-060"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-060": "missing_mandatory"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

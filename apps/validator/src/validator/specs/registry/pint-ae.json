@@ -1,0 +1,20 @@
+{
+  "spec_id": "pint-ae",
+  "jurisdiction": "AE",
+  "version": "RESOLVE_IN_WEEK_1",
+  "syntaxes": ["UBL-2.1"],
+  "schematron": ["pint-ae/PINT-AE.sch", "en16931/EN16931-UBL-model.sch"],
+  "codelists": ["ISO4217", "ISO3166", "UNECE_REC20", "UNTDID5305", "UNCL1001"],
+  "scenario_map": {
+    "standard": { "required_terms": ["BT-48", "BT-31", "BT-151"] },
+    "reverse_charge": { "required_terms": ["BT-48", "BT-31", "BT-121"] },
+    "designated_zone": { "required_terms": ["BT-48", "BT-31", "BT-121", "BT-20"] },
+    "export": { "required_terms": ["BT-31", "BT-151"] }
+  },
+  "identifier_rules": {
+    "trn": { "pattern": "^[0-9]{15}$", "checksum": "none" }
+  },
+  "archival_years": 7,
+  "issuance_window_days": 14,
+  "ruleset_hash": "COMPUTED_AT_BUILD"
+}

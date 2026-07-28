@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-seller-trn-malformed-fail",
+  "description": "Seller TRN carries an alphabetic prefix.",
+  "input": {
+    "file": "seller_trn_malformed_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-043"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-040"
+    ],
+    "failure_classes": {
+      "CDL-PROV-043": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-043": "BT-31"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

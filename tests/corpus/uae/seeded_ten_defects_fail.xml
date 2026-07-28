@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  M0 exit criterion 2 (architecture.md Part II · M0): the validator catches
+  10/10 seeded defects in a synthetic PINT AE invoice.
+
+  Exactly ten defects are seeded, one per intended rule, and the rest of the
+  document is deliberately clean so that the count is unambiguous. The
+  accompanying .expected.json asserts match="exact", so an eleventh finding
+  fails the corpus just as loudly as a missing one — over-firing is a defect
+  too, and a pass/fail boolean would hide it entirely.
+
+    1  BT-48 buyer TRN present but empty          -> CDL-PROV-041
+    2  BT-31 seller TRN only 12 digits            -> CDL-PROV-043
+    3  BT-151 line VAT category not in UNTDID5305 -> CDL-PROV-018
+    4  BT-130 unit code is free text ("Nos.")     -> CDL-PROV-019
+    5  BT-106 header total != sum of line BT-131  -> CDL-PROV-011
+    6  BT-5  currency lower-case                  -> CDL-PROV-006
+    7  BT-153 line item name missing              -> CDL-PROV-021
+    8  BT-2  issue date in DD/MM/YYYY             -> CDL-PROV-003
+    9  BT-110 tax amount carries three decimals   -> CDL-PROV-015
+   10  BT-118 VAT breakdown category unmapped     -> CDL-PROV-024
+
+  Synthetic. Every identifier is invented.
+-->
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2">
+  <cbc:CustomizationID>urn:cdl:synthetic:seeded-defects</cbc:CustomizationID>
+  <cbc:ProfileID>urn:cdl:billing</cbc:ProfileID>
+  <cbc:ID>SEED-10-0001</cbc:ID>
+  <!-- defect 8: DD/MM/YYYY, not an ISO calendar date -->
+  <cbc:IssueDate>10/08/2026</cbc:IssueDate>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <!-- defect 6: lower case -->
+  <cbc:DocumentCurrencyCode>aed</cbc:DocumentCurrencyCode>
+  <cbc:BuyerReference>PO-SEED-1</cbc:BuyerReference>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PostalAddress><cac:Country><cbc:IdentificationCode>AE</cbc:IdentificationCode></cac:Country></cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <!-- defect 2: 12 digits, not 15 -->
+        <cbc:CompanyID>100000000001</cbc:CompanyID>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      <cac:PartyLegalEntity><cbc:RegistrationName>Seeded Seller LLC</cbc:RegistrationName></cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PostalAddress><cac:Country><cbc:IdentificationCode>AE</cbc:IdentificationCode></cac:Country></cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <!-- defect 1: element present, value empty -->
+        <cbc:CompanyID></cbc:CompanyID>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:PartyTaxScheme>
+      <cac:PartyLegalEntity><cbc:RegistrationName>Seeded Buyer FZE</cbc:RegistrationName></cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+  <cac:TaxTotal>
+    <!-- defect 9: three decimals -->
+    <cbc:TaxAmount currencyID="AED">50.005</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="AED">1000.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="AED">50.005</cbc:TaxAmount>
+      <!-- defect 10: not an UNTDID 5305 code -->
+      <cac:TaxCategory><cbc:ID>VAT</cbc:ID><cbc:Percent>5</cbc:Percent></cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+  <cac:LegalMonetaryTotal>
+    <!-- defect 5: lines sum to 1000.00, not 900.00 -->
+    <cbc:LineExtensionAmount currencyID="AED">900.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="AED">1000.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="AED">1050.005</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="AED">1050.005</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <!-- defect 4: free-text unit -->
+    <cbc:InvoicedQuantity unitCode="Nos.">10</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="AED">1000.00</cbc:LineExtensionAmount>
+    <cac:Item>
+      <!-- defect 7: no cbc:Name -->
+      <!-- defect 3: not an UNTDID 5305 code -->
+      <cac:ClassifiedTaxCategory><cbc:ID>VAT</cbc:ID><cbc:Percent>5</cbc:Percent></cac:ClassifiedTaxCategory>
+    </cac:Item>
+    <cac:Price><cbc:PriceAmount currencyID="AED">100.00</cbc:PriceAmount></cac:Price>
+  </cac:InvoiceLine>
+</Invoice>

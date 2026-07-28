@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-currency-rounding-mismatch-fail",
+  "description": "Tax amount carries three decimal places.",
+  "input": {
+    "file": "currency_rounding_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-015"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-015": "rounding"
+    },
+    "business_terms": {
+      "CDL-PROV-015": "BT-110"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-issue-date-non-iso-fail",
+  "description": "BT-2 in DD-MM-YYYY order.",
+  "input": {
+    "file": "issue_date_non_iso_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-003"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-003": "date_logic"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

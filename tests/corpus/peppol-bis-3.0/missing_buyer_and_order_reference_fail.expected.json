@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "peppol-bis-3.0-missing-buyer-and-order-reference-fail",
+  "description": "Neither a buyer reference nor a purchase order reference.",
+  "input": {
+    "file": "missing_buyer_and_order_reference_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "peppol-bis-3.0",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-062"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-062": "cross_field_dependency"
+    },
+    "business_terms": {
+      "CDL-PROV-062": "BT-10"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

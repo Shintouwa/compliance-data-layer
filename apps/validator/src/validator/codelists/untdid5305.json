@@ -1,0 +1,19 @@
+{
+  "list_id": "UNTDID5305",
+  "name": "Duty or tax or fee category code",
+  "version": "EN16931-restricted",
+  "source": "UNTDID 5305 as restricted by EN 16931-1 for BT-95 / BT-102 / BT-151",
+  "completeness": "complete",
+  "notes": "The only list in this directory marked complete. EN 16931 restricts UNTDID 5305 to these nine category codes, and that restriction IS the list — it is closed, not a subset we happen to hold. This is what backs the one fail-severity code list rule in the M0 ruleset (tax_category_unmapped). Verify against the published EN 16931-1 code list annex before first client use; a tenth code appearing here would mean a spec revision, not a data-entry gap.",
+  "codes": [
+    "AE",
+    "E",
+    "G",
+    "K",
+    "L",
+    "M",
+    "O",
+    "S",
+    "Z"
+  ]
+}

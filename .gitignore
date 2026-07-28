@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+.pnpm-store/
+.venv/
+*.egg-info/
+
+# build / cache
+dist/
+.turbo/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# secrets — architecture.md Part V §1.1: never .env in the repo
+.env
+.env.*
+!.env.example
+
+# local
+.DS_Store
+Thumbs.db
+*.log

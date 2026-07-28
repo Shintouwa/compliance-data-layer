@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-missing-invoice-number-fail",
+  "description": "BT-1 present but empty.",
+  "input": {
+    "file": "missing_invoice_number_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-001"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-001": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-001": "BT-1"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

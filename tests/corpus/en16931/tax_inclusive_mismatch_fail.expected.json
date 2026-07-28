@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-tax-inclusive-mismatch-fail",
+  "description": "BT-112 does not equal BT-109 plus BT-110.",
+  "input": {
+    "file": "tax_inclusive_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-012"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-025"
+    ],
+    "failure_classes": {
+      "CDL-PROV-012": "arithmetic_mismatch"
+    },
+    "business_terms": {
+      "CDL-PROV-012": "BT-112"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

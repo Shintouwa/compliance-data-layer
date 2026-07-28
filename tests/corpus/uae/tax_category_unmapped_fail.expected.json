@@ -1,0 +1,40 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-tax-category-unmapped-fail",
+  "description": "Line VAT category is the ERP's own string, not an UNTDID 5305 code.",
+  "input": {
+    "file": "tax_category_unmapped_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-018"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-017",
+      "CDL-PROV-024"
+    ],
+    "failure_classes": {
+      "CDL-PROV-018": "invalid_code"
+    },
+    "business_terms": {
+      "CDL-PROV-018": "BT-151"
+    },
+    "value_shapes": {
+      "CDL-PROV-018": {
+        "len": 3,
+        "charset": "alpha",
+        "regex_class": "[A-Z]{3}",
+        "expected": "^(S|Z|E|AE|K|G|O|L|M)$"
+      }
+    }
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

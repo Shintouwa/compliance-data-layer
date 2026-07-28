@@ -1,0 +1,33 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-issue-date-non-iso-fail",
+  "description": "Issue date exported as DD/MM/YYYY.",
+  "input": {
+    "file": "issue_date_non_iso_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-003"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-002",
+      "CDL-PROV-023"
+    ],
+    "failure_classes": {
+      "CDL-PROV-003": "date_logic"
+    },
+    "business_terms": {
+      "CDL-PROV-003": "BT-2"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "peppol-bis-3.0-credit-note-bad-predecessor-fail",
+  "description": "Credit note with a blank BT-25.",
+  "input": {
+    "file": "credit_note_bad_predecessor_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "peppol-bis-3.0",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-022"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-022": "cross_field_dependency"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

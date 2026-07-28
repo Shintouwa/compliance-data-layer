@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "peppol-bis-3.0-prepayment-pass",
+  "description": "Prepaid amount deducted from the payable amount.",
+  "input": {
+    "file": "prepayment_pass.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "peppol-bis-3.0",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "pass",
+    "match": "exact",
+    "fired_rules": [],
+    "must_not_fire": [],
+    "failure_classes": {},
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

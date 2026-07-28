@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "peppol-bis-3.0-tax-category-unmapped-fail",
+  "description": "Line VAT category is not an UNTDID 5305 code.",
+  "input": {
+    "file": "tax_category_unmapped_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "peppol-bis-3.0",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-018"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-017"
+    ],
+    "failure_classes": {
+      "CDL-PROV-018": "invalid_code"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

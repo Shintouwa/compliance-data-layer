@@ -1,0 +1,69 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-seeded-ten-defects-fail",
+  "description": "M0 exit criterion 2: ten independent seeded defects, one per rule.",
+  "input": {
+    "file": "seeded_ten_defects_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-003",
+      "CDL-PROV-006",
+      "CDL-PROV-011",
+      "CDL-PROV-015",
+      "CDL-PROV-018",
+      "CDL-PROV-019",
+      "CDL-PROV-021",
+      "CDL-PROV-024",
+      "CDL-PROV-041",
+      "CDL-PROV-043"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-002",
+      "CDL-PROV-042",
+      "CDL-PROV-017",
+      "CDL-PROV-023"
+    ],
+    "failure_classes": {
+      "CDL-PROV-003": "date_logic",
+      "CDL-PROV-006": "format_mismatch",
+      "CDL-PROV-011": "arithmetic_mismatch",
+      "CDL-PROV-015": "rounding",
+      "CDL-PROV-018": "invalid_code",
+      "CDL-PROV-019": "invalid_code",
+      "CDL-PROV-021": "missing_mandatory",
+      "CDL-PROV-024": "invalid_code",
+      "CDL-PROV-041": "missing_mandatory",
+      "CDL-PROV-043": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-041": "BT-48",
+      "CDL-PROV-043": "BT-31",
+      "CDL-PROV-018": "BT-151",
+      "CDL-PROV-019": "BT-130"
+    },
+    "value_shapes": {
+      "CDL-PROV-041": {
+        "len": 0,
+        "charset": "empty",
+        "regex_class": null,
+        "expected": "^[0-9]{15}$"
+      },
+      "CDL-PROV-043": {
+        "len": 12,
+        "charset": "numeric",
+        "regex_class": "[0-9]{12}",
+        "expected": "^[0-9]{15}$"
+      }
+    }
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

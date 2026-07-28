@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "peppol-bis-3.0-line-sum-mismatch-fail",
+  "description": "BT-106 does not equal the sum of BT-131.",
+  "input": {
+    "file": "line_sum_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "peppol-bis-3.0",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-011"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-011": "arithmetic_mismatch"
+    },
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

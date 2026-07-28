@@ -1,0 +1,39 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-buyer-trn-malformed-fail",
+  "description": "Buyer TRN is 13 digits, not 15.",
+  "input": {
+    "file": "buyer_trn_malformed_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-042"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-041"
+    ],
+    "failure_classes": {
+      "CDL-PROV-042": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-042": "BT-48"
+    },
+    "value_shapes": {
+      "CDL-PROV-042": {
+        "len": 13,
+        "charset": "numeric",
+        "regex_class": "[0-9]{13}",
+        "expected": "^[0-9]{15}$"
+      }
+    }
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

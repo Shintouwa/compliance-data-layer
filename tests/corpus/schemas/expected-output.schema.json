@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://compliance-data-layer.dev/schemas/expected-output.schema.json",
+  "title": "Golden File Corpus expectation",
+  "description": "architecture.md Part I §3.3. The corpus asserts on the SET OF RULE IDS RETURNED, not on a boolean. 'Did it fail?' is not a test.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "description", "input", "spec", "expect", "provenance", "added_in"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Stable identifier. Never reused for a different case."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What real-world defect this case represents. A case nobody can explain is a case nobody can maintain."
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "syntax"],
+      "properties": {
+        "file": { "type": "string" },
+        "syntax": { "enum": ["UBL-2.1", "CII-D16B"] }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spec_id", "version"],
+      "properties": {
+        "spec_id": {
+          "enum": ["pint-ae", "en16931", "peppol-bis-3.0", "factur-x", "xrechnung", "ksef-fa3"]
+        },
+        "version": {
+          "type": "string",
+          "description": "RESOLVE_IN_WEEK_1 until the real version is resolved from its primary source."
+        }
+      }
+    },
+    "expect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "fired_rules"],
+      "properties": {
+        "outcome": { "enum": ["pass", "fail", "warn"] },
+        "match": {
+          "enum": ["exact", "superset"],
+          "default": "exact",
+          "description": "'exact' (required unless justified) — the returned rule-ID set must equal fired_rules exactly. 'superset' only with a non-empty match_justification."
+        },
+        "match_justification": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Mandatory when match is 'superset'. CI reports the superset count."
+        },
+        "fired_rules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "must_not_fire": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "description": "Negative assertions. Catches over-firing, which a pass/fail boolean hides completely."
+        },
+        "failure_classes": {
+          "type": "object",
+          "description": "Asserts classification, not just detection. The corpus's commercial value depends on classification being right.",
+          "additionalProperties": {
+            "enum": [
+              "missing_mandatory", "invalid_code", "format_mismatch",
+              "arithmetic_mismatch", "identifier_invalid", "cardinality",
+              "cross_field_dependency", "encoding", "date_logic", "rounding"
+            ]
+          }
+        },
+        "business_terms": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "pattern": "^(BT|BG)-[0-9]+$" }
+        },
+        "value_shapes": {
+          "type": "object",
+          "description": "Asserts redaction works. A RAW VALUE APPEARING HERE MEANS redaction.py HAS A DEFECT AND THE RULE-1 GUARANTEE IS VOID.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "len": { "type": ["integer", "null"], "minimum": 0 },
+              "charset": { "enum": ["numeric", "alpha", "alnum", "mixed", "empty", null] },
+              "regex_class": { "type": ["string", "null"] },
+              "expected": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "enum": ["synthetic", "client_derived", "spec_example"],
+      "description": "client_derived files are scrubbed before commit — enforced by §3.4 Rule B in the corpus runner."
+    },
+    "added_in": {
+      "type": "string",
+      "pattern": "^week-[0-9]{2}$"
+    }
+  }
+}

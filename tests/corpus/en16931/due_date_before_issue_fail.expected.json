@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-due-date-before-issue-fail",
+  "description": "BT-9 precedes BT-2.",
+  "input": {
+    "file": "due_date_before_issue_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-023"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-023": "date_logic"
+    },
+    "business_terms": {
+      "CDL-PROV-023": "BT-9"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

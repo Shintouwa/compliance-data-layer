@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-missing-type-code-fail",
+  "description": "BT-3 present but empty.",
+  "input": {
+    "file": "missing_type_code_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-004"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-005"
+    ],
+    "failure_classes": {
+      "CDL-PROV-004": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-004": "BT-3"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

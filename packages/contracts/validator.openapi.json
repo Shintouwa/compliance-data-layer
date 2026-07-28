@@ -1,0 +1,663 @@
+{
+  "components": {
+    "schemas": {
+      "EngineFailureBody": {
+        "additionalProperties": false,
+        "properties": {
+          "correlation_id": {
+            "title": "Correlation Id",
+            "type": "string"
+          },
+          "error": {
+            "const": "engine_failure",
+            "default": "engine_failure",
+            "title": "Error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "correlation_id"
+        ],
+        "title": "EngineFailureBody",
+        "type": "object"
+      },
+      "Finding": {
+        "additionalProperties": false,
+        "description": "One rule outcome. Part III \u00a75.\n\n`message` is templated from `value_shape` by redaction.py and never\ninterpolates the offending value. `value_shape` is the only representation\nof that value which crosses this boundary.",
+        "properties": {
+          "business_term": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Term"
+          },
+          "failure_class": {
+            "anyOf": [
+              {
+                "enum": [
+                  "missing_mandatory",
+                  "invalid_code",
+                  "format_mismatch",
+                  "arithmetic_mismatch",
+                  "identifier_invalid",
+                  "cardinality",
+                  "cross_field_dependency",
+                  "encoding",
+                  "date_logic",
+                  "rounding"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Class"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "native_rule_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Native Rule Code"
+          },
+          "rule_id": {
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "fatal",
+              "error",
+              "warning"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "value_shape": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ValueShape"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "xpath": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xpath"
+          }
+        },
+        "required": [
+          "rule_id",
+          "severity"
+        ],
+        "title": "Finding",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "description": "Part III \u00a75 and Part V \u00a72: /health VALIDATES A GOLDEN INVOICE.\n\nNot {\"ok\": true}. If Saxon dies or a spec file goes missing, health goes red.",
+        "properties": {
+          "checked_spec_id": {
+            "enum": [
+              "pint-ae",
+              "en16931",
+              "peppol-bis-3.0",
+              "factur-x",
+              "xrechnung",
+              "ksef-fa3"
+            ],
+            "title": "Checked Spec Id",
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "golden_invoice_outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "warn"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Golden Invoice Outcome"
+          },
+          "ruleset_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ruleset Hash"
+          },
+          "saxon_version": {
+            "title": "Saxon Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "saxon_version",
+          "golden_invoice_outcome",
+          "checked_spec_id",
+          "ruleset_hash"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "InvalidRequestBody": {
+        "additionalProperties": false,
+        "description": "Redacted schema-violation body.\n\nPart III \u00a75 defines four error conditions but not this one, and FastAPI will\nreturn *something* for a malformed request regardless. Declaring the shape\nhere means it is (a) generated into the contract so the web app can type it\nand (b) known not to echo the document \u2014 the framework default puts the\noffending input in the body, and here that input is an invoice.",
+        "properties": {
+          "error": {
+            "const": "invalid_request",
+            "default": "invalid_request",
+            "title": "Error",
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          }
+        },
+        "required": [
+          "fields"
+        ],
+        "title": "InvalidRequestBody",
+        "type": "object"
+      },
+      "ParseErrorBody": {
+        "additionalProperties": false,
+        "properties": {
+          "column": {
+            "title": "Column",
+            "type": "integer"
+          },
+          "error": {
+            "const": "parse_error",
+            "default": "parse_error",
+            "title": "Error",
+            "type": "string"
+          },
+          "line": {
+            "title": "Line",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "line",
+          "column"
+        ],
+        "title": "ParseErrorBody",
+        "type": "object"
+      },
+      "SpecDescriptor": {
+        "additionalProperties": false,
+        "properties": {
+          "jurisdiction": {
+            "title": "Jurisdiction",
+            "type": "string"
+          },
+          "resolved": {
+            "description": "False while `version` is the RESOLVE_IN_WEEK_1 sentinel. An unresolved spec is refused by /validate unless CDL_ALLOW_PROVISIONAL_RULESET=1. architecture.md 'How an agent must use this file' (2).",
+            "title": "Resolved",
+            "type": "boolean"
+          },
+          "ruleset_hash": {
+            "title": "Ruleset Hash",
+            "type": "string"
+          },
+          "spec_id": {
+            "enum": [
+              "pint-ae",
+              "en16931",
+              "peppol-bis-3.0",
+              "factur-x",
+              "xrechnung",
+              "ksef-fa3"
+            ],
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "syntaxes": {
+            "items": {
+              "enum": [
+                "UBL-2.1",
+                "CII-D16B"
+              ],
+              "type": "string"
+            },
+            "title": "Syntaxes",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "spec_id",
+          "jurisdiction",
+          "version",
+          "syntaxes",
+          "ruleset_hash",
+          "resolved"
+        ],
+        "title": "SpecDescriptor",
+        "type": "object"
+      },
+      "SpecsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "specs": {
+            "items": {
+              "$ref": "#/components/schemas/SpecDescriptor"
+            },
+            "title": "Specs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "specs"
+        ],
+        "title": "SpecsResponse",
+        "type": "object"
+      },
+      "UnknownSpecBody": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Available",
+            "type": "array"
+          },
+          "error": {
+            "const": "unknown_spec",
+            "default": "unknown_spec",
+            "title": "Error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "available"
+        ],
+        "title": "UnknownSpecBody",
+        "type": "object"
+      },
+      "ValidateOptions": {
+        "additionalProperties": false,
+        "properties": {
+          "include_warnings": {
+            "default": true,
+            "title": "Include Warnings",
+            "type": "boolean"
+          },
+          "stop_on_first_error": {
+            "default": false,
+            "description": "Set by the caller on a 504 retry. Part IV \u00a74 job 4.",
+            "title": "Stop On First Error",
+            "type": "boolean"
+          }
+        },
+        "title": "ValidateOptions",
+        "type": "object"
+      },
+      "ValidateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "direction": {
+            "default": "ar",
+            "enum": [
+              "ar",
+              "ap"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "document": {
+            "description": "Base64-encoded source document.",
+            "title": "Document",
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/ValidateOptions"
+          },
+          "profile": {
+            "enum": [
+              "pint-ae",
+              "en16931",
+              "peppol-bis-3.0",
+              "factur-x",
+              "xrechnung",
+              "ksef-fa3"
+            ],
+            "title": "Profile",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "spec_version": {
+            "title": "Spec Version",
+            "type": "string"
+          },
+          "syntax": {
+            "enum": [
+              "UBL-2.1",
+              "CII-D16B"
+            ],
+            "title": "Syntax",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "document",
+          "syntax",
+          "profile",
+          "spec_version"
+        ],
+        "title": "ValidateRequest",
+        "type": "object"
+      },
+      "ValidateResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/Finding"
+            },
+            "title": "Findings",
+            "type": "array"
+          },
+          "outcome": {
+            "enum": [
+              "pass",
+              "fail",
+              "warn"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "ruleset_hash": {
+            "description": "sha256 of the compiled ruleset, 'sha256:...'. MUST be persisted on every finding and validation event \u2014 two invocations of the same rule under different ruleset hashes are different facts.",
+            "title": "Ruleset Hash",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "spec_id": {
+            "enum": [
+              "pint-ae",
+              "en16931",
+              "peppol-bis-3.0",
+              "factur-x",
+              "xrechnung",
+              "ksef-fa3"
+            ],
+            "title": "Spec Id",
+            "type": "string"
+          },
+          "spec_version": {
+            "title": "Spec Version",
+            "type": "string"
+          },
+          "timing_ms": {
+            "title": "Timing Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "spec_id",
+          "spec_version",
+          "ruleset_hash",
+          "outcome",
+          "findings",
+          "timing_ms"
+        ],
+        "title": "ValidateResponse",
+        "type": "object"
+      },
+      "ValueShape": {
+        "additionalProperties": false,
+        "description": "The only representation of a failing value that crosses the boundary.\n\nField names are the wire contract (architecture.md Part III \u00a75) and match\n`packages/db/schema/_shared.ts` `ValueShape` on the TypeScript side.",
+        "properties": {
+          "charset": {
+            "anyOf": [
+              {
+                "enum": [
+                  "numeric",
+                  "alpha",
+                  "alnum",
+                  "mixed",
+                  "empty"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Coarse character class of the whole value.",
+            "title": "Charset"
+          },
+          "expected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Pattern the rule required. Rule metadata, not client data.",
+            "title": "Expected"
+          },
+          "len": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Character count, or null when the value is absent.",
+            "title": "Len"
+          },
+          "regex_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Character-class signature. Never contains value characters.",
+            "title": "Regex Class"
+          }
+        },
+        "title": "ValueShape",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Conformance validation sidecar. Schematron decides; no model is in the compliance decision path (CLAUDE.md \u00a74.4). A raw commercial value never crosses this boundary \u2014 only `value_shape` (architecture.md Part I \u00a72.9).",
+    "title": "Compliance Data Layer \u2014 Validator",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "Validate the golden invoice. Not {\"ok\": true}.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/specs": {
+      "get": {
+        "operationId": "specs_specs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpecsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Specs"
+      }
+    },
+    "/validate": {
+      "post": {
+        "operationId": "validate_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownSpecBody"
+                }
+              }
+            },
+            "description": "Unknown or unusable profile."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ParseErrorBody"
+                    },
+                    {
+                      "$ref": "#/components/schemas/InvalidRequestBody"
+                    }
+                  ],
+                  "title": "Response 422 Validate Validate Post"
+                }
+              }
+            },
+            "description": "Malformed document, or a request that failed schema validation. Never echoes document content."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineFailureBody"
+                }
+              }
+            },
+            "description": "Saxon or ruleset failure."
+          }
+        },
+        "summary": "Validate"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "list_id": "UNCL1001",
+  "name": "Document name code (invoice type code, BT-3)",
+  "version": "⚠️ RESOLVE FROM PRIMARY SOURCE IN WEEK 1",
+  "source": "UN/EDIFACT code list 1001 as restricted by EN 16931-1 and further restricted per profile (Peppol BIS 3.0 and PINT AE each narrow it again)",
+  "completeness": "partial",
+  "notes": "Partial because the EN 16931 restriction of UNCL 1001 differs from the Peppol BIS 3.0 restriction, which differs again from PINT AE, and none of the three has been resolved from primary source. Getting this wrong in either direction is bad: too narrow rejects valid invoices, too wide accepts documents the authority will not. Membership WARNs until resolved. The fail-severity BT-3 rule is structural (present, and exactly three digits), and credit-note lineage is enforced separately via BT-25, which architecture.md Part I §2.5 names as a top-8 rejection cause.",
+  "codes": [
+    "71", "80", "82", "84", "102", "130", "202", "203", "204", "211", "218",
+    "219", "295", "325", "326", "331", "380", "381", "382", "383", "384",
+    "385", "386", "387", "388", "389", "390", "393", "394", "395", "396",
+    "420", "456", "457", "458", "527", "532", "553", "575", "623", "633",
+    "751", "780", "817", "870", "875", "876", "877", "935"
+  ]
+}

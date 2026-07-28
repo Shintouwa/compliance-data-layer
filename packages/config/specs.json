@@ -1,0 +1,48 @@
+{
+  "$comment": [
+    "🔒 HUMAN-OWNED — CLAUDE.md §4.3. Spec versions and ruleset hashes.",
+    "",
+    "⚠️ RESOLVE FROM PRIMARY SOURCE IN WEEK 1. Every `version` below is the",
+    "RESOLVE_IN_WEEK_1 sentinel, not a real specification version. The sentinel",
+    "is load-bearing: while it is present, apps/validator refuses to report a",
+    "conformance outcome for that profile unless CDL_ALLOW_PROVISIONAL_RULESET=1",
+    "is set (which only the corpus runner and the test suite do).",
+    "",
+    "`ruleset_hash` is the sha256 of the compiled ruleset: every Schematron file",
+    "the profile declares, plus every code list, because code lists are inlined",
+    "into compiled tests and therefore change results. It is asserted against",
+    "the live registry by apps/validator/tests/test_specs_registry.py, so an",
+    "un-committed ruleset edit fails `make check` rather than drifting quietly.",
+    "",
+    "The hashes below WILL change when the published Schematron replaces the",
+    "provisional one. That is the point — see apps/validator/src/validator/specs/RULES.md."
+  ],
+  "specs": {
+    "pint-ae": {
+      "jurisdiction": "AE",
+      "version": "RESOLVE_IN_WEEK_1",
+      "ruleset_hash": "sha256:521a51f28383e7a00dd6b7e8546eed714ba5d55be2b413a69ce9ed3d5bb35233",
+      "resolved": false,
+      "primary_source": "OpenPeppol PINT AE specification and its published Schematron"
+    },
+    "en16931": {
+      "jurisdiction": "EU",
+      "version": "RESOLVE_IN_WEEK_1",
+      "ruleset_hash": "sha256:66d5e8ac6f3a108a11a86a6402d3f7aebffb3e58a06225562900b25868ff5544",
+      "resolved": false,
+      "primary_source": "CEN EN 16931-1 and the EN 16931 Schematron distribution"
+    },
+    "peppol-bis-3.0": {
+      "jurisdiction": "EU",
+      "version": "RESOLVE_IN_WEEK_1",
+      "ruleset_hash": "sha256:6087bb0c4b7faa26a6f100b9ebadf0a72fa8ebd57474d7f61085e346c6f663e1",
+      "resolved": false,
+      "primary_source": "OpenPeppol BIS Billing 3.0 and its published Schematron"
+    }
+  },
+  "cross_check": {
+    "kosit_validator_version": "RESOLVE_IN_WEEK_1",
+    "$comment": "⚠️ architecture.md §1.2. Java, CI only, never runtime — §3.5. scripts/kosit-crosscheck.sh refuses to run until this is resolved.",
+    "comparable_rule_prefixes": "BR-|BR-CO-|BR-DEC-|BR-S-|BR-Z-|BR-E-|BR-AE-|BR-IC-|BR-G-|BR-O-"
+  }
+}

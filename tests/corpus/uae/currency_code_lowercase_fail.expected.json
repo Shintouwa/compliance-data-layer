@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-currency-code-lowercase-fail",
+  "description": "Currency code exported in lower case.",
+  "input": {
+    "file": "currency_code_lowercase_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-006"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-007"
+    ],
+    "failure_classes": {
+      "CDL-PROV-006": "format_mismatch"
+    },
+    "business_terms": {
+      "CDL-PROV-006": "BT-5"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}

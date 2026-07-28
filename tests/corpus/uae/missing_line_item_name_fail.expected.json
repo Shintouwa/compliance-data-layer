@@ -1,0 +1,37 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-missing-line-item-name-fail",
+  "description": "Line has no item name.",
+  "input": {
+    "file": "missing_line_item_name_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-021"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-021": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-021": "BT-153"
+    },
+    "value_shapes": {
+      "CDL-PROV-021": {
+        "len": null,
+        "charset": null,
+        "regex_class": null,
+        "expected": null
+      }
+    }
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}
