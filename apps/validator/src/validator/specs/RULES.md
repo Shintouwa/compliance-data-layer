@@ -58,7 +58,7 @@ task; making it tolerant is not.
 ## Rule index
 
 `CDL-PROV-001` … `CDL-PROV-026` — `en16931/EN16931-UBL-model.sch`
-`CDL-PROV-040` … `CDL-PROV-046` — `pint-ae/PINT-AE.sch`
+`CDL-PROV-040` … `CDL-PROV-045` — `pint-ae/PINT-AE.sch`
 `CDL-PROV-060` … `CDL-PROV-062` — `peppol-bis-3.0/PEPPOL-BIS-3.0.sch`
 
 Two of these have a known published counterpart, named in architecture.md

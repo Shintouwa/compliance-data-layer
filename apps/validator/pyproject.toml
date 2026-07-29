@@ -20,9 +20,10 @@ dependencies = [
   # 🔒 EXACT PIN — do not widen, do not bump without a full corpus run.
   "saxonche==13.0.0",
 
-  # architecture.md §1.2: lxml 5.x specified. 5.x is EOL for Python 3.12 wheels;
-  # 6.1.1 is the current line and is API-compatible for everything parsers/ uses
-  # (etree, XPath, QName). Flagged for human confirmation — see M0 handover note.
+  # architecture.md §1.2: lxml 5.x specified. 5.x is maintained and does ship
+  # cp312 wheels — this is a preference, not a necessity. 6.1.1 is current,
+  # stable, and API-compatible for our etree/XPath/QName usage.
+  # Flagged for human confirmation — see M0 handover note.
   "lxml==6.1.1",
 
   # architecture.md §1.2: FastAPI 0.11x. 0.119.1 is the top of that band.
