@@ -16,7 +16,7 @@
 # is not a supported target and fails at import time, not at build time — the
 # worst possible failure mode for this stack.
 
-FROM python@sha256:d50fb7611f86d04a3b0471b46d7557818d88983fc3136726336b2a4c657aa30b AS base
+FROM python@sha256:72d3d75f2639ab82b34b29390ad3d6e0827c775befee94edda8e9976818f488d AS base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
