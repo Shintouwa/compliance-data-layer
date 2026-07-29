@@ -44,15 +44,21 @@ jobs:
       # PINT AE, KSeF or any Gulf profile — cross-checking a PINT-AE rule
       # against it produces a guaranteed spurious failure (§3.5).
       #
-      # Emits a WARNING rather than a silent pass while the version is
+      # Emits a WARNING rather than a silent pass while a precondition is
       # unresolved. A cross-check that quietly succeeds without running is worse
       # than one that fails: it reports agreement with a reference
       # implementation that was never invoked.
+      #
+      # The gate is the validator-CONFIGURATION, not the validator version.
+      # 2026-07-29: the version resolved to 1.6.2 from primary source while the
+      # cross-check stayed blocked for two unrelated reasons, so gating on the
+      # version would have run a script that is still deliberately red. KoSIT
+      # validates nothing without scenarios.xml — the jar alone is not enough.
       - name: KoSIT cross-check
         run: |
-          version=$(jq -r '.cross_check.kosit_validator_version' packages/config/specs.json)
-          if [ "$version" = "RESOLVE_IN_WEEK_1" ]; then
-            echo "::warning file=packages/config/specs.json::KoSIT cross-check NOT RUN - validator version is still the RESOLVE_IN_WEEK_1 sentinel, and every shipped rule is a provisional CDL-PROV-* id outside the comparable prefix set. This is a KNOWN GAP, not a pass. architecture.md Part I §1.2, §3.5."
+          config=$(jq -r '.cross_check.kosit_validator_configuration' packages/config/specs.json)
+          if [ "$config" = "RESOLVE_IN_WEEK_1" ]; then
+            echo "::warning file=packages/config/specs.json::KoSIT cross-check NOT RUN - validator-configuration (scenarios.xml + EN 16931/XRechnung resources) is still the RESOLVE_IN_WEEK_1 sentinel, and every shipped rule is a provisional CDL-PROV-* id outside the comparable prefix set. This is a KNOWN GAP, not a pass. architecture.md Part I §1.2, §3.5."
             exit 0
           fi
           ./scripts/kosit-crosscheck.sh

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # architecture.md Part I §3.5 — KoSIT cross-check.
 #
-# STATUS: BLOCKED ON A ⚠️ VALUE. This script deliberately fails.
+# STATUS: STILL BLOCKED. This script deliberately fails.
 #
-# §1.2 marks the KoSIT Validator version "⚠️ RESOLVE FROM PRIMARY SOURCE IN
-# WEEK 1", and CLAUDE.md §4.7(1) says: stop and ask, do not invent an external
-# identifier. So this exits non-zero with an explanation rather than either
-# guessing a release or quietly passing.
+# The KoSIT version IS now resolved — 1.6.2, from the primary source: the
+# upstream checkout is v1.6.2-2-g86d9ddf and CHANGELOG.md records 1.6.2 as the
+# latest release (2026-02-17). It is pinned in packages/config/specs.json.
+#
+# Two DIFFERENT blockers remain, and neither is a version string. See below.
 #
 # A cross-check that silently passes is worse than one that fails: it reports
 # agreement between our validator and a reference implementation that was never
@@ -24,22 +25,30 @@ COMPARABLE_PREFIXES="BR-|BR-CO-|BR-DEC-|BR-S-|BR-Z-|BR-E-|BR-AE-|BR-IC-|BR-G-|BR
 cat >&2 <<'BLOCKED'
 ::error::KoSIT cross-check is not yet runnable.
 
-  Blocked on two ⚠️ RESOLVE FROM PRIMARY SOURCE IN WEEK 1 values:
+  RESOLVED: KoSIT validator release 1.6.2 (pinned in packages/config/specs.json).
 
-    1. The KoSIT Validator release and its EN 16931 / XRechnung scenario
-       configuration  (architecture.md Part I §1.2)
-    2. The published EN 16931 Schematron. Every rule currently shipped in
-       apps/validator/src/validator/specs/ is agent-authored and namespaced
-       CDL-PROV-*, so NOTHING it emits falls inside COMPARABLE_PREFIXES and
-       there is nothing to compare.
+  Two blockers remain. Neither is a missing version.
 
-  Until (2) lands, this check would compare an empty set against an empty set
+    1. NOTHING TO COMPARE. Our validator still emits only agent-authored
+       CDL-PROV-* rule IDs. None of them fall inside COMPARABLE_PREFIXES, so
+       the comparison set is empty on our side. The published rulesets are
+       vendored under specs/*/published/ but are NOT wired in — the engine
+       cannot execute them. See specs/ENGINE-SVRL-MIGRATION.md.
+
+    2. NO RUNNABLE KoSIT. What was obtained is the validator SOURCE tree, not
+       a distribution: no target/, no built jar. More importantly the
+       validator-configuration (scenarios.xml plus the EN 16931 / XRechnung
+       resources) is a SEPARATE artefact and is absent. KoSIT validates
+       nothing without it — the jar alone is not enough.
+
+  With (1) unfixed this check would compare an empty set against an empty set
   and report success. That is a false green on a conformance control, so it
   fails instead.
 
-  To enable: resolve both values, pin the KoSIT release in
-  packages/config/specs.json (cross_check.kosit_validator_version), install the
-  published Schematron per specs/RULES.md, then implement the comparison here.
+  To enable:
+    - land the SVRL engine so we emit BR-* IDs (ENGINE-SVRL-MIGRATION.md), and
+    - fetch validator-configuration-xrechnung matching KoSIT 1.6.2, then
+      implement the comparison here.
 
   architecture.md Part I §3.5; CLAUDE.md §4.7(1).
 BLOCKED

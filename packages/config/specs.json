@@ -15,7 +15,17 @@
     "un-committed ruleset edit fails `make check` rather than drifting quietly.",
     "",
     "The hashes below WILL change when the published Schematron replaces the",
-    "provisional one. That is the point — see apps/validator/src/validator/specs/RULES.md."
+    "provisional one. That is the point — see apps/validator/src/validator/specs/RULES.md.",
+    "",
+    "2026-07-29: the published rulesets have been OBTAINED and vendored under",
+    "apps/validator/src/validator/specs/*/published/ (provenance and upstream",
+    "commits: specs/PROVENANCE.md). They are NOT wired in — the engine cannot",
+    "execute them (specs/ENGINE-SVRL-MIGRATION.md). `published_source` below",
+    "records the version each profile WILL declare once its ruleset actually",
+    "runs. `version` stays on the sentinel until then, deliberately: it is the",
+    "gate that stops /validate reporting a verdict, and a real version string",
+    "beside a provisional ruleset would open that gate over a validator running",
+    "35 agent-authored rules. The version follows the ruleset, never leads it."
   ],
   "specs": {
     "pint-ae": {
@@ -23,26 +33,47 @@
       "version": "RESOLVE_IN_WEEK_1",
       "ruleset_hash": "sha256:521a51f28383e7a00dd6b7e8546eed714ba5d55be2b413a69ce9ed3d5bb35233",
       "resolved": false,
-      "primary_source": "OpenPeppol PINT AE specification and its published Schematron"
+      "primary_source": "OpenPeppol PINT AE specification and its published Schematron",
+      "published_source": {
+        "status": "⚠️ UNRESOLVED — obtained files have NO verifiable provenance",
+        "detail": "The supplied pint-ae-resources-dev folder was not a git checkout: no commit, no tag, no origin, no version string in any .sch, and the directory is named '-dev'. CLAUDE.md §4.7(1) forbids inventing an external identifier. AE is the jurisdiction being sold into, which is why this one must not be guessed. See specs/PROVENANCE.md."
+      }
     },
     "en16931": {
       "jurisdiction": "EU",
       "version": "RESOLVE_IN_WEEK_1",
       "ruleset_hash": "sha256:66d5e8ac6f3a108a11a86a6402d3f7aebffb3e58a06225562900b25868ff5544",
       "resolved": false,
-      "primary_source": "CEN EN 16931-1 and the EN 16931 Schematron distribution"
+      "primary_source": "CEN EN 16931-1 and the EN 16931 Schematron distribution",
+      "published_source": {
+        "status": "obtained, vendored, NOT wired in",
+        "will_declare_version": "1.3.16",
+        "upstream": "github.com/ConnectingEurope/eInvoicing-EN16931",
+        "commit": "b6c9e06a59812fb1a83585da40923b3678a649ad",
+        "tag": "validation-1.3.16",
+        "rules": 979
+      }
     },
     "peppol-bis-3.0": {
       "jurisdiction": "EU",
       "version": "RESOLVE_IN_WEEK_1",
       "ruleset_hash": "sha256:6087bb0c4b7faa26a6f100b9ebadf0a72fa8ebd57474d7f61085e346c6f663e1",
       "resolved": false,
-      "primary_source": "OpenPeppol BIS Billing 3.0 and its published Schematron"
+      "primary_source": "OpenPeppol BIS Billing 3.0 and its published Schematron",
+      "published_source": {
+        "status": "obtained, vendored, NOT wired in",
+        "will_declare_version": "3.0.20",
+        "upstream": "github.com/OpenPEPPOL/peppol-bis-invoice-3",
+        "commit": "261c458474e27d58a25be629cccac28883171c92",
+        "tag": "v3.0.20",
+        "rules": 151
+      }
     }
   },
   "cross_check": {
-    "kosit_validator_version": "RESOLVE_IN_WEEK_1",
-    "$comment": "⚠️ architecture.md §1.2. Java, CI only, never runtime — §3.5. scripts/kosit-crosscheck.sh refuses to run until this is resolved.",
+    "kosit_validator_version": "1.6.2",
+    "$comment": "RESOLVED 2026-07-29 from primary source: github.com/itplr-kosit/validator, checkout v1.6.2-2-g86d9ddf, CHANGELOG.md records 1.6.2 (2026-02-17) as the latest release. Java, CI only, never runtime — §3.5. scripts/kosit-crosscheck.sh STILL refuses to run, now for two different reasons: we emit no comparable rule IDs, and validator-configuration-xrechnung (scenarios.xml + resources) was not obtained — KoSIT validates nothing without it.",
+    "kosit_validator_configuration": "RESOLVE_IN_WEEK_1",
     "comparable_rule_prefixes": "BR-|BR-CO-|BR-DEC-|BR-S-|BR-Z-|BR-E-|BR-AE-|BR-IC-|BR-G-|BR-O-"
   }
 }

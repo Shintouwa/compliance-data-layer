@@ -27,6 +27,23 @@ Makefile  text eol=lf
 packages/contracts/validator.openapi.json text eol=lf
 packages/contracts/validator.d.ts         text eol=lf
 
+# Vendored third-party conformance artefacts — EXEMPT from normalisation.
+#
+# Must come after the *.sch rule above; last match wins.
+#
+# Everything above normalises OUR files to LF so the same ruleset hashes the
+# same on every platform. These files are not ours. Their defensibility rests
+# on being byte-for-byte what the standards body published: the EN 16931 and
+# Peppol distributions ship CRLF, and `text eol=lf` would silently rewrite
+# every line on commit. Then `ruleset_hash` would be the sha256 of a file we
+# altered, an upstream diff would show every line changed, and the provenance
+# claim in specs/PROVENANCE.md would be false.
+#
+# -text means git never converts in either direction, so the bytes are
+# identical on every platform — determinism by not touching them, rather than
+# determinism by rewriting them.
+apps/validator/src/validator/specs/*/published/**  -text
+
 # Binary
 *.docx    binary
 *.pdf     binary
