@@ -26,6 +26,30 @@ jobs:
       - run: pip install -e "apps/validator[dev]"
 
       # --- static analysis: all blocking ---
+
+      # Every ./scripts/*.sh below is invoked BY PATH, so a script committed
+      # without the executable bit does not fail with its own error message —
+      # it fails with `Permission denied` and exit 126, several steps later,
+      # naming a script that is perfectly correct.
+      #
+      # This is a Windows-authored-commit failure mode: git config
+      # core.filemode=false means chmod in the working tree never reaches the
+      # index, so `git add` records 100644 and the author sees nothing wrong
+      # locally. It cost a red build on 2026-07-31.
+      #
+      # Fix when this fires:  git update-index --chmod=+x scripts/<name>.sh
+      - name: shell scripts are executable
+        run: |
+          bad=$(git ls-files -s -- 'scripts/*.sh' | awk '$1 != "100755" { print $1 "  " $4 }')
+          if [ -n "$bad" ]; then
+            echo "::error file=.github/workflows/ci.yml::scripts/*.sh must be committed mode 100755. CI invokes them by path; mode 100644 fails with exit 126 (Permission denied)."
+            echo "Offending files (mode  path):"
+            echo "$bad" | sed 's/^/  /'
+            echo "Fix: git update-index --chmod=+x <path> && git commit"
+            exit 1
+          fi
+          echo "All $(git ls-files -- 'scripts/*.sh' | wc -l) shell script(s) are mode 100755."
+
       - name: typecheck
         run: pnpm tsc --noEmit
       - name: lint

@@ -26,8 +26,29 @@ dependencies = [
   # Flagged for human confirmation — see M0 handover note.
   "lxml==6.1.1",
 
-  # architecture.md §1.2: FastAPI 0.11x. 0.119.1 is the top of that band.
-  "fastapi==0.119.1",
+  # ⚠️ DELIBERATE DEVIATION from architecture.md §1.2, which specifies FastAPI
+  # 0.11x. Approved by the human lead 2026-07-31 to clear 8 security
+  # advisories. Recorded here rather than in a commit message because the next
+  # reader of this file is the one who needs to know the band was left on
+  # purpose and must not be "corrected" back.
+  #
+  # fastapi 0.119.1 constrains starlette<0.49.0, and EVERY starlette in that
+  # range carries PYSEC-2026-161, -248, -249, -1942, -2280 and -2281. There is
+  # no fix available inside the 0.11x band — the band itself is the constraint.
+  # fastapi >=0.135.0 drops the starlette upper bound, so 0.141.1 is the
+  # earliest release that can accept a patched starlette.
+  #
+  # Verified before landing: all 103 sidecar tests pass, and the generated
+  # OpenAPI is byte-identical to packages/contracts/validator.openapi.json —
+  # this changes no wire contract and needs no `make contract-update`.
+  "fastapi==0.141.1",
+
+  # Pinned explicitly rather than left transitive. The advisories are in
+  # starlette, not fastapi, so the floor belongs where a reader will actually
+  # see it; a transitive pin would silently drift back on the next resolve.
+  # 1.3.1 is the highest fix version across the six PYSEC ids above.
+  "starlette==1.3.1",
+
   "pydantic==2.13.4",
   "uvicorn[standard]==0.51.0",
 ]
