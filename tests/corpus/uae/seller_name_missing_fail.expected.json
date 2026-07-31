@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-seller-name-missing-fail",
+  "description": "BT-27 is absent, so CDL-PROV-008 fires alone.",
+  "input": {
+    "file": "seller_name_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-008"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-008": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-008": "BT-27"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

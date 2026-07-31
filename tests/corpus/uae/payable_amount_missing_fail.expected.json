@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-payable-amount-missing-fail",
+  "description": "BT-115 is absent. CDL-PROV-025's castable guard closes on an absent payable amount, so only CDL-PROV-013 fires.",
+  "input": {
+    "file": "payable_amount_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-013"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-025"
+    ],
+    "failure_classes": {
+      "CDL-PROV-013": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-013": "BT-115"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

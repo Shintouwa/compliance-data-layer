@@ -1,0 +1,40 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-type-code-not-in-codelist-fail",
+  "description": "BT-3 is 999, absent from UNCL 1001. CDL-PROV-005 is flag='warning' and a warning-only document yields outcome 'warn', which is neither a pass nor a fail -- so CDL-PROV-026 is carried deliberately, and declared, to make this an executable _fail case.",
+  "input": {
+    "file": "type_code_not_in_codelist_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-005",
+      "CDL-PROV-026"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-005": "invalid_code",
+      "CDL-PROV-026": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-005": "BT-3",
+      "CDL-PROV-026": "BT-40"
+    },
+    "value_shapes": {
+      "CDL-PROV-026": {
+        "len": 3,
+        "charset": "alpha",
+        "regex_class": "[A-Z]{3}",
+        "expected": "^[A-Z]{2}$"
+      }
+    }
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

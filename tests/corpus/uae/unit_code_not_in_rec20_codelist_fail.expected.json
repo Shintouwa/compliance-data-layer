@@ -1,0 +1,42 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-unit-code-not-in-rec20-codelist-fail",
+  "description": "BT-130 is ZZZ: it satisfies the Rec 20 shape so CDL-PROV-019 passes, and is absent from our partial copy of the list so CDL-PROV-020 warns. A partial list cannot deny validity, which is exactly why this rule is a warning. CDL-PROV-026 is carried deliberately and declared.",
+  "input": {
+    "file": "unit_code_not_in_rec20_codelist_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-020",
+      "CDL-PROV-026"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-019"
+    ],
+    "failure_classes": {
+      "CDL-PROV-020": "invalid_code",
+      "CDL-PROV-026": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-020": "BT-130",
+      "CDL-PROV-026": "BT-40"
+    },
+    "value_shapes": {
+      "CDL-PROV-026": {
+        "len": 3,
+        "charset": "alpha",
+        "regex_class": "[A-Z]{3}",
+        "expected": "^[A-Z]{2}$"
+      }
+    }
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

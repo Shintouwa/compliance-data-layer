@@ -1,17 +1,17 @@
 REACHABILITY — what the corpus actually exercises
 =================================================================
-RECONSTRUCTED 2026-07-31. No REACHABILITY.txt existed in this working
-tree at the start of this session; see "PROVENANCE OF THIS FILE" at the
-foot. Every number below was re-measured this session from the bytes in
-this repository. Nothing is carried over on trust.
+RE-MEASURED 2026-07-31 (second pass, after the UAE skeleton roll). Every
+number below was re-derived this session from the bytes in this
+repository. Nothing is carried over on trust. The first-pass numbers are
+kept beside the new ones so the delta is auditable rather than asserted.
 
 
 1. EXECUTED COVERAGE (provisional rulesets — what `make check` runs)
 -------------------------------------------------------------------
     profile          assert  exerc  always-T  ctx-absent  unreach  undet
-    en16931              26     12        14           0        0      0
-    pint-ae              32     15        17           0        0      0
-    TOTAL                58     27        31           0        0      0
+    en16931              26     26         0           0        0      0
+    pint-ae              32     32         0           0        0      0
+    TOTAL                58     58         0           0        0      0
 
   exerc      made to fire by at least one case
   always-T   context present, assertion evaluated, never once false
@@ -22,23 +22,41 @@ this repository. Nothing is carried over on trust.
   undet      context not bucketable by the runner; never silently folded
              into another column.
 
-  The corpus reports 0 problems across 46 executed cases while 31 of 58
-  assertions have never once been false. ctx-absent is 0: those 31 are
-  not unreached, they are UNFALSIFIED. That is a negative-testing gap,
-  not a reachability gap, and it is the more precise diagnosis — every
-  one of those rules ran, on real fixtures, and nothing ever violated it.
+  DELTA THIS SESSION
+    en16931   26/26 -> 26/26     (unchanged; already complete)
+    pint-ae   15/32 -> 32/32     +17
+    TOTAL     41/58 -> 58/58     +17
+    cases     60    -> 77 executed  (+17), 42 -> 59 expected-fail
 
-  Reported, NOT gated. Gating on this before the published rulesets are
-  executed would gate on the wrong denominator.
+  Every one of the 58 assertions the engine executes has now been made
+  FALSE by at least one corpus document. always-T, ctx-absent and undet
+  are all zero. That is the strongest statement this metric can make
+  about the provisional rulesets, and it is now saturated: it can no
+  longer distinguish a good corpus from a better one, and the next
+  honest denominator is the published rulesets in section 2.
+
+  Reported, NOT gated — unchanged. Gating on a saturated metric measures
+  nothing.
+
+  What closed the 17. The seventeen pint-ae rules previously recorded as
+  "evaluated, never once false" were CDL-PROV-001 002 004 005 007 008 009
+  012 013 014 016 017 020 023 025 026 045. Sixteen are core-model rules
+  shared with en16931, where a fail fixture already existed; only the
+  pint-ae corpus had never made them false. CDL-PROV-045 (BT-55 buyer
+  country) is pint-ae's own. One new targeted _fail fixture per rule now
+  exists under tests/corpus/uae, each violating exactly ONE rule with
+  match="exact", so over-firing fails the corpus as loudly as under-firing.
+  All seventeen carry provenance "mechanically_derived_pending_review".
 
 
 2. PUBLISHED RULESETS — coverage against what we actually claim
 ---------------------------------------------------------------
   en16931  21 of 979 published assertions made to fire by the corpus
-  pint-ae  44 of 303
+  pint-ae  44 of 303   (unchanged as a FIRING count; see 2b for what
+                        DID change, which is conformance, not firing)
 
-  Both denominators were challenged and both were re-verified this
-  session by XML parse, not grep:
+  Both denominators were challenged and both were re-verified by XML
+  parse, not grep:
 
   979 DOES NOT DOUBLE-COUNT.
     EN16931-UBL-validation-preprocessed.sch carries 979 assert nodes
@@ -56,6 +74,85 @@ this repository. Nothing is carried over on trust.
     each; invoice-only = 0, creditnote-only = 0 on both). Summing all
     four files would give 606. 303 = 171 + 132 is the deduplicated
     figure and is correct.
+
+
+2b. THE UAE ROLL — MEASURED AGAINST THE PUBLISHED PINT AE RULESET
+------------------------------------------------------------------
+  This is the number that moved, and it is a CONFORMANCE number, not a
+  coverage number. It was produced by running the vendored, SVRL-emitting
+  published stylesheets
+
+      pint-ae/published/trn-{invoice,creditnote}/
+        PINT-UBL-validation-preprocessed.xslt
+        PINT-jurisdiction-aligned-rules.xslt
+
+  over every tests/corpus/uae document with saxonche, and counting
+  svrl:failed-assert. MEASUREMENT ONLY: the registry still points at the
+  provisional CDL-PROV rulesets, no ruleset_hash changed, and /validate
+  still refuses pint-ae on the RESOLVE_IN_WEEK_1 sentinel.
+
+  Harness validated first, on the twelve official PINT AE example
+  documents shipped with the package. All twelve measure CLEAN (0
+  findings) — invoice x10, credit note x2. A harness that cannot get the
+  vendor's own examples to zero is measuring itself, not the fixtures.
+
+    _pass fixtures, findings against published PINT AE
+        BEFORE:  14-19 findings each, 10 of 10 non-conformant
+        AFTER:    0 findings each,    10 of 10 CLEAN
+
+    _fail fixtures
+        AFTER:   only the published consequences of the seeded defect;
+                 73 findings across 30 fixtures, every one traceable to
+                 the defect the fixture was built to carry.
+
+  Three _fail fixtures measure CLEAN against the published ruleset. That
+  is a finding, not an oversight, and each is recorded in its own
+  .expected.json description:
+
+    due_date_before_issue_fail       published PINT AE carries NO rule
+                                     ordering BT-9 against BT-2.
+                                     CDL-PROV-023 catches a defect the
+                                     published ruleset does not.
+    header_line_sum_decimals_fail    BT-106 = "1000.000". The published
+                                     BR-DEC counterpart tests the ROUNDED
+                                     value; CDL-PROV-014 tests the
+                                     LEXICAL form and is stricter.
+    buyer_identifier_missing_fail    see section 7 — the two published
+                                     rules that should have caught this
+                                     are inert.
+
+  What the roll actually changed in the fixtures, all of it confirmed
+  from the FTA/MoF primary sources supplied this session:
+
+    cbc:CustomizationID     -> urn:peppol:pint:billing-1@ae-1
+    cbc:ProfileID           -> urn:peppol:bis:billing
+    cbc:ProfileExecutionID  -> BTAE-02, 8-char bitmask, 00000000 default
+    cbc:EndpointID@schemeID -> 0235, value = 10-digit TIN
+    PartyLegalEntity/CompanyID@schemeAgencyID   -> TL   (BTAE-15)
+                             @schemeAgencyName  -> present (BTAE-12)
+    PartyTaxScheme/CompanyID -> TRN re-minted to 15 digits, starts 1,
+                                ends 03, TIN = its first 10 digits
+    postal address           -> street, city, country subdivision added
+    lines                    -> item description, price base quantity,
+                                price allowance base amount, and
+                                ItemPriceExtension (BTAE-08 / BTAE-10)
+
+  NOT ONE .expected.json CHANGED IN THE ROLL. Twenty-six fixture XML
+  files were rewritten and zero expectations moved with them. That was
+  the acceptance test for the roll, deliberately: if making a fixture
+  conformant to the published standard had required editing what we
+  assert about it, the change would have been altering the specification
+  to fit the document. It did not.
+
+  Two defects were introduced during the roll and BOTH were caught by
+  the corpus, not by review:
+    - credit_note_bad_predecessor_fail lost its seeded defect to a
+      falsy-string default (`"" or "CDL-0001"`), and CDL-PROV-022 stopped
+      firing.
+    - seeded_ten_defects_fail had its seller TRN changed from 12 digits
+      to 13, contradicting the len=12 value_shape its 🔒 expectation
+      asserts.
+  Both were repaired in the fixture, never in the expectation.
 
 
 3. A THIRD COPY OF EN 16931 IS VENDORED — and 1,301 does not reconcile
@@ -77,23 +174,32 @@ this repository. Nothing is carried over on trust.
       (the 1-rule gap is the UBL-SR-56 / BR-CO-25 divergence above)
       naive sum of every published .sch file            = 2420
 
-  RULES.md states the hand-authoring burden as "1,301 published rules".
-  That figure reconciles with none of the measured combinations. It is
-  ~140 LOWER than the true distinct count, i.e. wrong in the direction
-  that makes the blocked work look smaller than it is. RULES.md is 🔒 —
-  correction proposed as a diff in rules-md-defects.patch, not applied.
+  RULES.md stated the hand-authoring burden as "1,301 published rules".
+  That figure reconciled with none of the measured combinations and was
+  corrected to 1,442 in commit 11c8abe.
+
+  The peppol published_source rule count in packages/config/specs.json
+  was 151 and is now 159, corrected this session under the same
+  authorisation as the quarantine record. Re-verified by XML parse of
+  peppol-bis-3.0/published/PEPPOL-EN16931-UBL.sch: sch:assert 159,
+  sch:report 0, distinct @id 159, by flag fatal 135 / warning 24. No
+  combination of those numbers produces 151.
 
 
 4. M0 EXIT CRITERION 1 COUNTS FILES, NOT RULES
 -----------------------------------------------
   MIN_CASES = 60 counts corpus CASES (expectation files). It does not
-  count rules, and on this evidence the two are only weakly correlated:
-  46 executed cases exercise 27 of 58 provisional assertions, and the
-  en16931 roll of 2026-07-31 repaired 19 fixtures (95 changed lines)
-  while moving the exercised count by exactly zero.
+  count rules, and the two are only weakly correlated — the en16931 roll
+  earlier on 2026-07-31 repaired 19 fixtures (95 changed lines) while
+  moving the exercised count by exactly zero.
+
+  This session is the counter-example in the other direction: 17 new
+  cases moved the exercised count by exactly 17, because each was built
+  from a named unexercised rule rather than from a scenario.
 
   Stated as a fact about what the gate measures. NOT a proposal to
-  change the gate.
+  change the gate. Current: 77 executed cases, 59 expected-fail, against
+  minimums of 60 and 30.
 
 
 5. pint-ae/published/ INTEGRITY
@@ -102,34 +208,155 @@ this repository. Nothing is carried over on trust.
   them — and that changes when the published rulesets enter the registry
   and are executed, at which point they fall under ruleset_hash.
 
+  The Reference/ staging folder supplied this session was deleted after
+  extraction, per instruction. Verified redundant BEFORE deletion, by
+  sha256 over every artefact:
+      18 of 18 pint-ae code lists   byte-identical to the vendored copies
+       4 of 4  pint-ae schematron   byte-identical
+       2 of 2  en16931 artefacts    identical after newline normalisation
+                                    (vendored copies are CRLF, 1218
+                                    occurrences; content equal, 979
+                                    assertions and 979 distinct IDs on
+                                    both sides, both stamping
+                                    "Schematron version 1.3.16 - Last
+                                    update: 2026-04-10")
+  Nothing was lost. The FTA/MoF PDFs are public documents and the values
+  taken from them are recorded in section 6.
 
-6. THE 2026-07-31 en16931 ROLL — WHAT IT MOVED AND WHAT IT DID NOT
--------------------------------------------------------------------
-  19 of 20 en16931 fixtures repaired for EN 16931 conformance
-  (no_identifiers_pass excluded; its premise is false).
 
-  Against the PUBLISHED ruleset:  0/20 clean -> 9/20 clean
-      all 7 repaired _pass fixtures now conform exactly
-  Against the PROVISIONAL ruleset (what make check executes):
-      27/58 exercised -> 27/58 exercised.  NO CHANGE.
-      46 cases -> 46 cases.                NO CHANGE.
-      0 problems -> 0 problems.
+6. THE UAE VALUES — CONFIRMED FROM PRIMARY SOURCE
+--------------------------------------------------
+  All three values this session was asked to confirm are CONFIRMED, each
+  corroborated twice: once in the FTA/MoF prose and once in the @test
+  bytes of the published PINT AE Schematron, which also fixes the UBL
+  binding that the prose does not state.
 
-  The repairs are inert on the executed ruleset by construction: no
-  CDL-PROV-* rule references cac:TaxScheme, cbc:CompanyID, or the
-  BT-5/@currencyID relationship. The reported coverage metric is blind
-  to the entire class of work that makes a fixture conformant to the
-  standard the profile claims to implement.
+  schemeID 0235 — CONFIRMED
+    UAE-Electronic-Invoice-mandatory-fields V1.0 (23 Feb 2026), §4.1 and
+    §4.2 row 12: "Seller electronic identifier — The identification of
+    the Seller. For Businesses registered in the UAE, this will be a
+    fixed value 0235."
+    Binding, from published ibr-181-ae:
+        not(cbc:EndpointID[@schemeID = "0235"]) or ...
+    so it is cac:Party/cbc:EndpointID/@schemeID, IBT-034-1 on the seller
+    and IBT-049-1 on the buyer. The endpoint VALUE is the TIN — same
+    document, §4.1 row 11 and glossary row 11: "A unique 10-digit
+    identifier and the first 10 digits of the 15-digit TRN".
 
-  That is the finding. The roll is real and the fixtures are genuinely
-  better; the number we report did not notice.
+  BTAE-15 = TL — CONFIRMED AS THE CORRECT VALUE FOR THESE FIXTURES,
+                 WITH ONE CORRECTION TO THE BRIEF
+    Binding, from published ibr-172-ae:
+        cac:PartyLegalEntity/cbc:CompanyID/@schemeAgencyID = "TL"
+    The brief stated BTAE-15 "must be TL". The primary source does not
+    say that. Mandatory-fields §4.1/§4.2 row 14 and published ibr-173-ae
+    both give FOUR permitted values:
+        TL  Commercial/Trade licence
+        EID Emirates ID
+        PAS Passport
+        CD  Cabinet Decision
+    TL is the correct choice for a trade-licensed business, which is what
+    every UAE fixture models, and TL is what they now carry. It is not
+    the only lawful value, and a rule asserting that it were would be
+    wrong. Recorded because a validator that rejects a lawful EID- or
+    PAS-identified seller is precisely the company-ending wrong answer of
+    CLAUDE.md §4.1.
+    Note also ibr-172-ae: when BTAE-15 is TL, the BTAE-12 authority name
+    (@schemeAgencyName) MUST be present. The fixtures carry it.
+
+  BTAE-02 = 8-character bitmask, 00000000 for standard — CONFIRMED
+    Binding, from published ibr-154-ae:
+        matches(cbc:ProfileExecutionID, "^[01]{8}$")
+    Position order corroborated twice — the mandatory-fields §4.1 row 5
+    list order, and the published transactiontype.gc code list, which
+    names each position explicitly and agrees:
+        1 Free trade zone       5 Continuous supply
+        2 Deemed supply         6 Agent billing
+        3 Margin scheme         7 Supply through e-commerce
+        4 Summary invoice       8 Exports
+    The corpus now exercises three of the eight positions with the
+    dependent rules they switch on: 00000000 (standard, 24 fixtures),
+    10000000 (free trade zone — pulls in BTAE-01 beneficiary ID via
+    ibr-007-ae) and 00000001 (exports — pulls in the IBG-13 delivery
+    address via ibr-152-ae).
+
+  Additionally confirmed and applied, not asked for but load-bearing:
+    ibr-132-ae   TRN is 15 digits, starts with 1, ends with 03
+    ibr-128-ae   AE country subdivision is one of AUH DXB SHJ UAQ FUJ
+                 AJM RAK
+    aligned-ibrp-001-ae / -002-ae   the CustomizationID and ProfileID
+                 values in section 2b
+
+
+7. TWO MORE INERT RULES IN THE PUBLISHED PINT AE RULESET
+---------------------------------------------------------
+  Found while measuring the roll. tests/corpus/uae/
+  buyer_identifier_missing_fail.xml omits the buyer VAT identifier
+  entirely and measures CLEAN against the published ruleset. Two
+  published rules exist to require it; neither fires.
+
+    ibr-135-ae  requires IBT-046 or IBT-048 only when the buyer endpoint
+                does NOT match "^1\d{9}$" — which is exactly the TIN
+                format the specification mandates elsewhere.
+    ibr-149-ae  requires IBT-047 unless the endpoint matches "^[19]" —
+                a ONE-CHARACTER test, and every conforming UAE TIN
+                begins with 1.
+
+  Both are inert for the entire population they were written to cover.
+  This is the same class as Defect 1 (ibr-191-ae, 9-character guard on
+  an 8-character field) already recorded in RULES.md.
+
+  RULES.md is 🔒 and this session was authorised to apply exactly one
+  🔒 diff. The correction is produced and held as
+  rules-md-tin-guard-defects.patch, NOT applied.
+
+  ⚠️ The MEASUREMENT is a fact. The inference that the exemptions are
+  unintended is NOT, and must be confirmed with the UAE Peppol Authority
+  before it is repeated to a client. CLAUDE.md §4.4.
+
+
+8. PINT AE PROVENANCE — EVIDENCE FOUND, STILL NOT RESOLVED
+------------------------------------------------------------
+  The Reference/ folder contained a document the earlier vendoring did
+  not have: pint-ae-resources-dev/common/docs/specialized-release-notes
+  .pdf, "Release notes for PINT AE Billing". It states:
+
+      Version 1.0.3
+      Maintained by  The United Arab Emirates (UAE) Peppol Authority
+      Release Date   2026-03-25
+      Status         Published
+
+  Circumstantial evidence that the VENDORED artefacts are that release:
+    - 1.0.2-hotfix added ibr-154-ae, ibr-134-ae, ibr-191-ae. All three
+      are present in the vendored files, so the artefacts are >= that.
+    - 1.0.3 lists a fix to ibr-143-ae for a "non-existent
+      cac:AccountingBuyerParty". The vendored ibr-143-ae context is
+      cac:AccountingSupplierParty/cac:Party/cac:PostalAddress — the
+      corrected form.
+    - 1.0.3 lists aligned-ibrp-o-11-ae and ibr-121-ae corrections; both
+      rules are present.
+
+  NOT SUFFICIENT, AND NOT APPLIED. No .sch, .xslt or .gc in the package
+  carries a PINT AE version string — the only version strings found are
+  the XML declarations and per-code-list versions. The folder is still
+  named "-dev", which reads as a development snapshot that could post-
+  date 1.0.3. Matching a changelog to symptoms is inference, not
+  provenance, and CLAUDE.md §4.7(1) forbids inventing an external
+  identifier for exactly this case.
+
+  packages/config/specs.json and the sidecar registry both keep
+  RESOLVE_IN_WEEK_1 for pint-ae. Resolving it is a human action:
+  obtain the package from the OpenPeppol member area or the UAE Ministry
+  of Finance with a release identifier attached, confirm it is 1.0.3,
+  and record the identifier and retrieval date in specs/PROVENANCE.md.
+  This section is the evidence to check that answer against, not the
+  answer.
 
 
 PROVENANCE OF THIS FILE
 -----------------------
-  No REACHABILITY.txt, rules-md-defects.patch or specs-json-quarantine
-  .patch existed anywhere in this working tree, in any branch, stash or
-  worktree, at the start of the 2026-07-31 session. This file was
-  rebuilt from direct measurement rather than reconstructed from memory
-  of a prior session, and it deliberately contains nothing that was not
-  re-derived from bytes on that date.
+  Rebuilt 2026-07-31 by direct measurement, then re-measured the same day
+  after the UAE roll. Every figure in sections 1, 2, 2b, 3 and 5 was
+  produced by running the code or parsing the bytes in this repository on
+  that date; nothing was reconstructed from memory of a prior session.
+  Sections 6 and 7 quote primary sources and @test attributes verbatim so
+  that each claim re-verifies without trusting this file.

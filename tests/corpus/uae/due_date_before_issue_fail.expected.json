@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-due-date-before-issue-fail",
+  "description": "BT-9 is 2026-07-01 and BT-2 is 2026-08-10, so CDL-PROV-023 fires alone. NOTE: the published PINT AE ruleset measures this document clean -- it carries no rule ordering the due date against the issue date. CDL-PROV-023 catches a defect the published ruleset does not; see REACHABILITY.txt.",
+  "input": {
+    "file": "due_date_before_issue_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-023"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-023": "date_logic"
+    },
+    "business_terms": {
+      "CDL-PROV-023": "BT-9"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

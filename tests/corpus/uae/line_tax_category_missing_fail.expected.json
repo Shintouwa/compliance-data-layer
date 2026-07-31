@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-line-tax-category-missing-fail",
+  "description": "BT-151 is absent from the line. CDL-PROV-018's non-empty guard closes, so only CDL-PROV-017 fires.",
+  "input": {
+    "file": "line_tax_category_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-017"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-018"
+    ],
+    "failure_classes": {
+      "CDL-PROV-017": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-017": "BT-151"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

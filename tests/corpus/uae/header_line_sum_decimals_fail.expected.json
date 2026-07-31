@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-header-line-sum-decimals-fail",
+  "description": "BT-106 is 1000.000 -- three decimal places. xs:decimal('1000.000') still equals the sum of BT-131, so CDL-PROV-011 stays satisfied and the defect is the scale alone. NOTE: the published PINT AE ruleset measures this document clean, because its BR-DEC counterpart tests the rounded value rather than the lexical form. CDL-PROV-014 is the stricter rule; see REACHABILITY.txt.",
+  "input": {
+    "file": "header_line_sum_decimals_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-014"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-011"
+    ],
+    "failure_classes": {
+      "CDL-PROV-014": "rounding"
+    },
+    "business_terms": {
+      "CDL-PROV-014": "BT-106"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

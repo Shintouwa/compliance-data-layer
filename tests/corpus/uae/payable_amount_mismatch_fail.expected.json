@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-payable-amount-mismatch-fail",
+  "description": "BT-115 is 999.00 where BT-112 less BT-113 is 1050.00. BT-112 itself still reconciles against BT-109 + BT-110, so CDL-PROV-012 stays satisfied and CDL-PROV-025 fires alone.",
+  "input": {
+    "file": "payable_amount_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-025"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-012"
+    ],
+    "failure_classes": {
+      "CDL-PROV-025": "arithmetic_mismatch"
+    },
+    "business_terms": {
+      "CDL-PROV-025": "BT-115"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

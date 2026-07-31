@@ -1,0 +1,37 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-seller-country-code-malformed-fail",
+  "description": "BT-40 is ARE -- the ISO 3166-1 alpha-3 form where the alpha-2 form is required. CDL-PROV-026 fires alone.",
+  "input": {
+    "file": "seller_country_code_malformed_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-026"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-026": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-026": "BT-40"
+    },
+    "value_shapes": {
+      "CDL-PROV-026": {
+        "len": 3,
+        "charset": "alpha",
+        "regex_class": "[A-Z]{3}",
+        "expected": "^[A-Z]{2}$"
+      }
+    }
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

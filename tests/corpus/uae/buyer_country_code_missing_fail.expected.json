@@ -1,0 +1,37 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-buyer-country-code-missing-fail",
+  "description": "BT-55 is absent. CDL-PROV-045 is the one rule in this set that is pint-ae's own rather than inherited from the core model, and no previous corpus document had ever made it false.",
+  "input": {
+    "file": "buyer_country_code_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-045"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-045": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-045": "BT-55"
+    },
+    "value_shapes": {
+      "CDL-PROV-045": {
+        "len": null,
+        "charset": null,
+        "regex_class": null,
+        "expected": "^[A-Z]{2}$"
+      }
+    }
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-currency-code-not-in-codelist-fail",
+  "description": "BT-5 is XTS: three upper-case letters, so CDL-PROV-006 stays satisfied and only the code-list arm CDL-PROV-007 fires. Warning severity, so CDL-PROV-026 is carried deliberately and declared. XTS is a real ISO 4217 code reserved for testing and absent from our partial copy -- which is exactly the case a partial list may warn about but must never deny.",
+  "input": {
+    "file": "currency_code_not_in_codelist_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-007",
+      "CDL-PROV-026"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-006"
+    ],
+    "failure_classes": {
+      "CDL-PROV-007": "invalid_code",
+      "CDL-PROV-026": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-007": "BT-5",
+      "CDL-PROV-026": "BT-40"
+    },
+    "value_shapes": {
+      "CDL-PROV-026": {
+        "len": 3,
+        "charset": "alpha",
+        "regex_class": "[A-Z]{3}",
+        "expected": "^[A-Z]{2}$"
+      }
+    }
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  M0 exit criterion 2 (architecture.md Part II · M0): the validator catches
+  M0 exit criterion 2 (architecture.md Part II - M0): the validator catches
   10/10 seeded defects in a synthetic PINT AE invoice.
 
   Exactly ten defects are seeded, one per intended rule, and the rest of the
   document is deliberately clean so that the count is unambiguous. The
   accompanying .expected.json asserts match="exact", so an eleventh finding
-  fails the corpus just as loudly as a missing one — over-firing is a defect
+  fails the corpus just as loudly as a missing one - over-firing is a defect
   too, and a pass/fail boolean would hide it entirely.
 
     1  BT-48 buyer TRN present but empty          -> CDL-PROV-041
@@ -20,69 +20,109 @@
     9  BT-110 tax amount carries three decimals   -> CDL-PROV-015
    10  BT-118 VAT breakdown category unmapped     -> CDL-PROV-024
 
-  Synthetic. Every identifier is invented.
+  Synthetic. Every identifier is invented. The document otherwise carries the
+  UAE skeleton confirmed from the FTA/MoF primary sources - schemeID 0235 on
+  the endpoint, BTAE-15 = TL with its BTAE-12 authority name, and BTAE-02 as
+  an 8-character transaction-type bitmask.
 -->
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
          xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
          xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2">
-  <cbc:CustomizationID>urn:cdl:synthetic:seeded-defects</cbc:CustomizationID>
-  <cbc:ProfileID>urn:cdl:billing</cbc:ProfileID>
+  <cbc:CustomizationID>urn:peppol:pint:billing-1@ae-1</cbc:CustomizationID>
+  <cbc:ProfileID>urn:peppol:bis:billing</cbc:ProfileID>
+  <cbc:ProfileExecutionID>00000000</cbc:ProfileExecutionID>
   <cbc:ID>SEED-10-0001</cbc:ID>
-  <!-- defect 8: DD/MM/YYYY, not an ISO calendar date -->
+  <cbc:UUID>0f8b6d1c-0000-4000-8000-000000009001</cbc:UUID>
   <cbc:IssueDate>10/08/2026</cbc:IssueDate>
+  <cbc:DueDate>2026-09-09</cbc:DueDate>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
-  <!-- defect 6: lower case -->
   <cbc:DocumentCurrencyCode>aed</cbc:DocumentCurrencyCode>
   <cbc:BuyerReference>PO-SEED-1</cbc:BuyerReference>
   <cac:AccountingSupplierParty>
     <cac:Party>
-      <cac:PostalAddress><cac:Country><cbc:IdentificationCode>AE</cbc:IdentificationCode></cac:Country></cac:PostalAddress>
+      <cbc:EndpointID schemeID="0235">1000000001</cbc:EndpointID>
+      <cac:PostalAddress>
+        <cbc:StreetName>Sheikh Zayed Road</cbc:StreetName>
+        <cbc:CityName>Dubai</cbc:CityName>
+        <cbc:CountrySubentity>DXB</cbc:CountrySubentity>
+        <cac:Country><cbc:IdentificationCode>AE</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
       <cac:PartyTaxScheme>
-        <!-- defect 2: 12 digits, not 15 -->
         <cbc:CompanyID>100000000001</cbc:CompanyID>
         <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
       </cac:PartyTaxScheme>
-      <cac:PartyLegalEntity><cbc:RegistrationName>Seeded Seller LLC</cbc:RegistrationName></cac:PartyLegalEntity>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>Seeded Seller LLC</cbc:RegistrationName>
+        <cbc:CompanyID schemeAgencyID="TL" schemeAgencyName="Department of Economic Development">112345678900003</cbc:CompanyID>
+      </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty>
     <cac:Party>
-      <cac:PostalAddress><cac:Country><cbc:IdentificationCode>AE</cbc:IdentificationCode></cac:Country></cac:PostalAddress>
+      <cbc:EndpointID schemeID="0235">1000000002</cbc:EndpointID>
+      <cac:PostalAddress>
+        <cbc:StreetName>Corniche Road</cbc:StreetName>
+        <cbc:CityName>Abu Dhabi</cbc:CityName>
+        <cbc:CountrySubentity>AUH</cbc:CountrySubentity>
+        <cac:Country><cbc:IdentificationCode>AE</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>
       <cac:PartyTaxScheme>
-        <!-- defect 1: element present, value empty -->
         <cbc:CompanyID></cbc:CompanyID>
         <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
       </cac:PartyTaxScheme>
-      <cac:PartyLegalEntity><cbc:RegistrationName>Seeded Buyer FZE</cbc:RegistrationName></cac:PartyLegalEntity>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>Seeded Buyer FZE</cbc:RegistrationName>
+        <cbc:CompanyID schemeAgencyID="TL" schemeAgencyName="Department of Economic Development">112345679000001</cbc:CompanyID>
+      </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingCustomerParty>
+  <cac:PaymentMeans>
+    <cbc:PaymentMeansCode name="Debit Card">55</cbc:PaymentMeansCode>
+  </cac:PaymentMeans>
   <cac:TaxTotal>
-    <!-- defect 9: three decimals -->
-    <cbc:TaxAmount currencyID="AED">50.005</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="aed">50.005</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="AED">1000.00</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="AED">50.005</cbc:TaxAmount>
-      <!-- defect 10: not an UNTDID 5305 code -->
-      <cac:TaxCategory><cbc:ID>VAT</cbc:ID><cbc:Percent>5</cbc:Percent></cac:TaxCategory>
+      <cbc:TaxableAmount currencyID="aed">1000.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="aed">50.005</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>VAT</cbc:ID>
+        <cbc:Percent>5</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:TaxCategory>
     </cac:TaxSubtotal>
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
-    <!-- defect 5: lines sum to 1000.00, not 900.00 -->
-    <cbc:LineExtensionAmount currencyID="AED">900.00</cbc:LineExtensionAmount>
-    <cbc:TaxExclusiveAmount currencyID="AED">1000.00</cbc:TaxExclusiveAmount>
-    <cbc:TaxInclusiveAmount currencyID="AED">1050.005</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="AED">1050.005</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="aed">900.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="aed">1000.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="aed">1050.005</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="aed">1050.005</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
-    <!-- defect 4: free-text unit -->
     <cbc:InvoicedQuantity unitCode="Nos.">10</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="AED">1000.00</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="aed">1000.00</cbc:LineExtensionAmount>
     <cac:Item>
-      <!-- defect 7: no cbc:Name -->
-      <!-- defect 3: not an UNTDID 5305 code -->
-      <cac:ClassifiedTaxCategory><cbc:ID>VAT</cbc:ID><cbc:Percent>5</cbc:Percent></cac:ClassifiedTaxCategory>
+      <cbc:Description>Professional consultancy services</cbc:Description>
+      <cac:ClassifiedTaxCategory>
+        <cbc:ID>VAT</cbc:ID>
+        <cbc:Percent>5</cbc:Percent>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:ClassifiedTaxCategory>
     </cac:Item>
-    <cac:Price><cbc:PriceAmount currencyID="AED">100.00</cbc:PriceAmount></cac:Price>
+    <cac:Price>
+      <cbc:PriceAmount currencyID="aed">100.00</cbc:PriceAmount>
+      <cbc:BaseQuantity unitCode="Nos.">1</cbc:BaseQuantity>
+      <cac:AllowanceCharge>
+        <cbc:ChargeIndicator>false</cbc:ChargeIndicator>
+        <cbc:Amount currencyID="aed">0.00</cbc:Amount>
+        <cbc:BaseAmount currencyID="aed">100.00</cbc:BaseAmount>
+      </cac:AllowanceCharge>
+    </cac:Price>
+    <cac:ItemPriceExtension>
+      <cbc:Amount currencyID="aed">1050.005</cbc:Amount>
+      <cac:TaxTotal>
+        <cbc:TaxAmount currencyID="aed">50.005</cbc:TaxAmount>
+      </cac:TaxTotal>
+    </cac:ItemPriceExtension>
   </cac:InvoiceLine>
 </Invoice>

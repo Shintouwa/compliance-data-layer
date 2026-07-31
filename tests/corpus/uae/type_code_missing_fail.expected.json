@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-type-code-missing-fail",
+  "description": "BT-3 is absent. CDL-PROV-005's non-empty guard closes, so only CDL-PROV-004 fires.",
+  "input": {
+    "file": "type_code_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-004"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-005"
+    ],
+    "failure_classes": {
+      "CDL-PROV-004": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-004": "BT-3"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

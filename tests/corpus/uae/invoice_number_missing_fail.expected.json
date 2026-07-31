@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-invoice-number-missing-fail",
+  "description": "BT-1 is absent, so CDL-PROV-001 fires alone. Targets a pint-ae rule that every previous corpus document satisfied.",
+  "input": {
+    "file": "invoice_number_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-001"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-001": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-001": "BT-1"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

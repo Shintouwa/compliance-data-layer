@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-tax-inclusive-mismatch-fail",
+  "description": "BT-112 is 1100.00 where BT-109 + BT-110 is 1050.00. BT-115 is moved with it so that CDL-PROV-025 stays satisfied and CDL-PROV-012 is the only arithmetic rule that fires.",
+  "input": {
+    "file": "tax_inclusive_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-012"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-025"
+    ],
+    "failure_classes": {
+      "CDL-PROV-012": "arithmetic_mismatch"
+    },
+    "business_terms": {
+      "CDL-PROV-012": "BT-112"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

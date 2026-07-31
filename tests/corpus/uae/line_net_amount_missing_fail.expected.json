@@ -1,0 +1,32 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-line-net-amount-missing-fail",
+  "description": "BT-131 is absent from the only line. BT-106 is 0.00 to match the resulting line sum, so CDL-PROV-011 stays satisfied and CDL-PROV-016 fires alone.",
+  "input": {
+    "file": "line_net_amount_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-016"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-011"
+    ],
+    "failure_classes": {
+      "CDL-PROV-016": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-016": "BT-131"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

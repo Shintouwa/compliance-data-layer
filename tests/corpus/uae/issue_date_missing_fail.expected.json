@@ -1,0 +1,33 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "uae-issue-date-missing-fail",
+  "description": "BT-2 is absent. CDL-PROV-003's castable guard and CDL-PROV-023's date guard both close on an absent issue date, so only CDL-PROV-002 fires.",
+  "input": {
+    "file": "issue_date_missing_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "pint-ae",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-002"
+    ],
+    "must_not_fire": [
+      "CDL-PROV-003",
+      "CDL-PROV-023"
+    ],
+    "failure_classes": {
+      "CDL-PROV-002": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-002": "BT-2"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}
