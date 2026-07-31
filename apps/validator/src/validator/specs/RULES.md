@@ -242,3 +242,52 @@ as the three address components are present.
 Unlike Defects 1 and 6 the guard here is well-formed (`^[01]{7}1$`, 8
 characters, consistent with the family), so this rule **does execute** — it
 simply executes something narrower than it claims.
+
+### Defect 9 — `ibr-135-ae`: the exemption matches the mandated TIN format
+
+`pint-ae/published/trn-invoice/PINT-jurisdiction-aligned-rules.sch`, context
+`cac:AccountingCustomerParty/cac:Party`.
+
+    @test: ((cac:PartyIdentification/cbc:ID or cac:PartyTaxScheme/cbc:CompanyID)
+            and G) or not(G)
+
+    where G = not(matches(../../cbc:ProfileExecutionID, "^[01]{7}1$"))
+              and cbc:EndpointID/@schemeID = "0235"
+              and not(matches(cbc:EndpointID, "^1\d{9}$"))
+
+The rule requires IBT-046 or IBT-048 only when `G` holds, and `G` requires the
+buyer electronic address NOT to be ten digits beginning with 1.
+
+That is precisely the format the rest of the specification mandates:
+
+| source | requirement |
+|---|---|
+| `ibr-132-ae` | TRN is 15 digits, **starts with 1**, ends `03` |
+| UAE-Electronic-Invoice-mandatory-fields V1.0, glossary row 11 | TIN is "the first 10 digits of the 15-digit TRN" |
+| same, §4.1/§4.2 row 11 | the seller electronic address "is the Tax Identification Number (TIN)" |
+| `ibr-148-ae` | TIN "must be 10 numeric digits", `@test` `matches(., "^1[0-9]{9}$")` |
+
+So for any buyer whose endpoint carries a conforming UAE TIN — the mandated
+arrangement — `G` is false and the rule is satisfied vacuously. **The rule is
+inert for exactly the population it was written to cover.**
+
+### Defect 10 — `ibr-149-ae`: same cause, one-character guard
+
+Same file, same context.
+
+    @test: cbc:EndpointID/@schemeID != "0235"
+           or matches(normalize-space(cbc:EndpointID), "^[19]")
+           or exists(cac:PartyTaxScheme/cbc:CompanyID)
+
+The rule text says the exemption is for endpoints of the form `1XXXXXXXXX` or
+`9XXXXXXXXX`. The `@test` checks only the **first character**, and every
+conforming UAE TIN begins with 1 (`ibr-132-ae`, above). The middle disjunct is
+therefore true for every UAE buyer and the requirement for IBT-047 never
+applies. **Inert on the same population as Defect 9.**
+
+⚠️ INTERPRETATION NOT CONFIRMED. That `^[19]` is narrower than the intended
+`^[19]\d{9}$` is legible from the rule text, but whether the UAE Peppol
+Authority intends these exemptions to swallow the rule is a question for them,
+not for us. CLAUDE.md §4.4 forbids interpreting a jurisdiction rule. The
+MEASUREMENT above is a fact; the inference that it is unintended is not, and
+must be confirmed with the Authority before it is repeated to a client.
