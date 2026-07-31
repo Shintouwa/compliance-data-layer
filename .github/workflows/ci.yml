@@ -90,10 +90,21 @@ jobs:
       - name: OpenAPI contract check
         run: ./scripts/contract-check.sh
 
-      # --- schema safety (M1: activate with packages/db) ---
+      # --- schema safety (§2.10, §3.5) ---
+      #
+      # The Neon step creates a throwaway branch, migrates it, re-applies
+      # packages/db/policies/*.sql, and exports NEON_BRANCH_URL for the two
+      # guards after it. Without NEON_API_KEY it emits a ::warning and sets
+      # CDL_SCHEMA_GUARDS=skipped, and the guards say NOT RUN rather than
+      # passing vacuously.
+      #
+      # NEON_PROJECT_ID is optional: the script discovers the project when the
+      # account has exactly one, and refuses to guess otherwise.
       - name: migration dry-run on Neon branch
         if: hashFiles('scripts/neon-branch-migrate.sh') != ''
-        env: { NEON_API_KEY: '${{ secrets.NEON_API_KEY }}' }
+        env:
+          NEON_API_KEY: '${{ secrets.NEON_API_KEY }}'
+          NEON_PROJECT_ID: '${{ secrets.NEON_PROJECT_ID }}'
         run: ./scripts/neon-branch-migrate.sh
       - name: RLS coverage
         if: hashFiles('scripts/assert-rls-coverage.sh') != ''
@@ -104,6 +115,16 @@ jobs:
       - name: queue registration coverage
         if: hashFiles('scripts/assert-queue-coverage.sh') != ''
         run: ./scripts/assert-queue-coverage.sh
+
+      # A leaked CI branch keeps a Neon compute endpoint alive and counts
+      # against the project's branch limit, so this runs even when the guards
+      # above failed. `|| true` because a failure to clean up must not mask the
+      # failure that is actually being reported.
+      - name: delete the Neon CI branch
+        if: always() && env.NEON_BRANCH_ID != ''
+        env: { NEON_API_KEY: '${{ secrets.NEON_API_KEY }}' }
+        run: |
+          curl --silent --show-error -X DELETE             "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches/${NEON_BRANCH_ID}"             -H "Authorization: Bearer ${NEON_API_KEY}" >/dev/null || true
 
       # --- supply chain ---
       - name: dependency audit

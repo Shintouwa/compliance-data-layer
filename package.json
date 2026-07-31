@@ -13,14 +13,15 @@
     "test": "vitest run"
   },
   "pnpm": {
-    "$comment": "esbuild is vitest's bundler and needs its postinstall to place a platform binary. Declared explicitly rather than left to an interactive `pnpm approve-builds`, so a fresh clone and CI behave identically.",
+    "$comment": "esbuild is vitest's bundler and needs its postinstall to place a platform binary. sharp is next's image-optimisation binary, same situation. Declared explicitly rather than left to an interactive `pnpm approve-builds`, so a fresh clone and CI behave identically.",
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "sharp"
     ],
     "$overridesComment": [
-      "CI runs `pnpm audit --audit-level high` as a blocking gate. These two are",
-      "transitive dev-only advisories with no direct dependency to bump, so they",
-      "are pinned forward here rather than by lowering the audit threshold.",
+      "CI runs `pnpm audit --audit-level high` as a blocking gate. These are",
+      "transitive advisories with no direct dependency to bump, so they are",
+      "pinned forward here rather than by lowering the audit threshold.",
       "",
       "js-yaml       GHSA-52cp-r559-cp3m  merge-key chains -> quadratic CPU",
       "              via openapi-typescript > @redocly/openapi-core.",
@@ -34,11 +35,25 @@
       "              fixed 1.x or 2.x, so the override crosses majors by",
       "              necessity. Verified against the full `make check`.",
       "",
-      "Both are build-time only and never ship in the sidecar image."
+      "Both are build-time only and never ship in the sidecar image.",
+      "",
+      "postcss  GHSA-6g55-p6wh-862q + GHSA-r28c-9q8g-f849  sourceMappingURL in a",
+      "              CSS comment -> arbitrary .map file read. Reached through",
+      "              next > postcss, which pins the 8.4 line. 8.5.18 is the first",
+      "              release fixed for both; apps/web depends on ^8.5.25 directly,",
+      "              and this override drags next's copy up to match.",
+      "",
+      "sharp    GHSA-f88m-g3jw-g9cj  heap buffer overflow in the bundled libwebp",
+      "              on a malformed input image. An OPTIONAL dependency of next,",
+      "              used only by the production image optimiser — but it is in",
+      "              the lockfile, so it is in the audit. 0.35.0 is the first",
+      "              fixed release."
     ],
     "overrides": {
       "js-yaml@<4.3.0": "^4.3.0",
-      "brace-expansion@<5.0.8": "^5.0.8"
+      "brace-expansion@<5.0.8": "^5.0.8",
+      "postcss@<8.5.18": "^8.5.25",
+      "sharp@<0.35.0": "^0.35.3"
     }
   },
   "devDependencies": {

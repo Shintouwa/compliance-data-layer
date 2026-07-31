@@ -1,0 +1,32 @@
+{
+  "$comment": [
+    "Next.js needs a tsconfig at the app root. The authoritative typecheck is",
+    "the ROOT `pnpm tsc --noEmit`, which covers this directory as part of one",
+    "program — see /tsconfig.json. This file exists so `next dev`, `next build`",
+    "and the editor resolve the same way, and it must not drift from the root.",
+    "tsconfig.contract.test.ts asserts that it does not."
+  ],
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowJs": true,
+    "incremental": true,
+    "jsx": "preserve",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
+}

@@ -1,8 +1,18 @@
 {
+  "$comment": [
+    "One program covers both deployables' TypeScript, so `pnpm tsc --noEmit` —",
+    "the first line of `make check` and of CI — cannot be green while apps/web",
+    "is broken. A per-package typecheck would have to be remembered; this does",
+    "not. architecture.md Part I §1.5.",
+    "",
+    "apps/web/tsconfig.json exists for Next.js itself and declares the same",
+    "options against the same paths. The two must agree; they are checked",
+    "against each other by apps/web/tsconfig-contract.test.ts."
+  ],
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -10,8 +20,20 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["node"]
+    "jsx": "preserve",
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./apps/web/*"]
+    }
   },
-  "include": ["packages/**/*.ts", "packages/**/*.d.ts", "*.ts", "*.mts"],
-  "exclude": ["node_modules", "**/node_modules", "**/dist"]
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.d.ts",
+    "apps/web/**/*.ts",
+    "apps/web/**/*.tsx",
+    "*.ts",
+    "*.mts"
+  ],
+  "exclude": ["node_modules", "**/node_modules", "**/dist", "apps/web/.next"]
 }

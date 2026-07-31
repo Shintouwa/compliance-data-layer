@@ -1,0 +1,27 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./corpus-connection": "./corpus-connection.ts",
+    "./analytics-connection": "./analytics-connection.ts",
+    "./transaction": "./transaction.ts",
+    "./schema": "./schema/index.ts",
+    "./schema/_shared": "./schema/_shared.ts",
+    "./schema/app": "./schema/app.ts",
+    "./schema/client-data": "./schema/client-data.ts",
+    "./schema/corpus": "./schema/corpus.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.6",
+    "drizzle-kit": "^0.31.10"
+  }
+}

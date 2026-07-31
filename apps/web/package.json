@@ -1,0 +1,37 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1100.0",
+    "@clerk/nextjs": "^7.6.4",
+    "@repo/config": "workspace:*",
+    "@repo/contracts": "workspace:*",
+    "@repo/db": "workspace:*",
+    "csv-parse": "^7.0.1",
+    "drizzle-orm": "^0.45.2",
+    "exceljs": "^4.4.0",
+    "fast-xml-parser": "^5.10.1",
+    "next": "^15.5.22",
+    "pg": "^8.16.3",
+    "pg-boss": "^10.4.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/pg": "^8.15.6",
+    "@types/react-dom": "^19.2.4",
+    "postcss": "^8.5.25",
+    "tailwindcss": "^4.3.3"
+  }
+}

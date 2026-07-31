@@ -55,12 +55,24 @@ contract-update:
 	pnpm openapi-typescript packages/contracts/validator.openapi.json \
 	  -o packages/contracts/validator.d.ts
 
+# drizzle-kit resolves `schema` and `out` relative to the WORKING DIRECTORY,
+# not to the config file, so both invocations run from packages/db. §1.5 gives
+# them bare; run from the repo root they generate into ./schema and ./migrations
+# and the next `make migrate` sees no existing migrations to build on.
+#
+# 001 takes the three role passwords as psql variables — never literals in the
+# repository (Part V §1.1). Empty is allowed and means "leave an existing role
+# alone"; a MISSING role with no password is a hard error, not a skip.
 migrate:        ## Generate, apply, then RE-APPLY policies (§2.10)
-	pnpm drizzle-kit generate
-	pnpm drizzle-kit migrate
-	psql "$$DATABASE_URL" -f packages/db/policies/001_roles_and_grants.sql
-	psql "$$DATABASE_URL" -f packages/db/policies/002_corpus_append_only.sql
-	psql "$$DATABASE_URL" -f packages/db/policies/003_client_data_rls.sql
+	cd packages/db && pnpm drizzle-kit generate
+	cd packages/db && pnpm drizzle-kit migrate
+	psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 \
+	  -v app_user_pw="$${APP_USER_PW:-}" \
+	  -v corpus_writer_pw="$${CORPUS_WRITER_PW:-}" \
+	  -v analytics_pw="$${ANALYTICS_PW:-}" \
+	  -f packages/db/policies/001_roles_and_grants.sql
+	psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f packages/db/policies/002_corpus_append_only.sql
+	psql "$$DATABASE_URL" -v ON_ERROR_STOP=1 -f packages/db/policies/003_client_data_rls.sql
 
 deploy:
 	git push origin main
