@@ -86,7 +86,18 @@ jobs:
         run: |
           pnpm audit --audit-level high
           pip install pip-audit
-          pip-audit --strict -r <(pip freeze)
+          # cdl-validator is THIS repository, installed editable by the step
+          # above. It is not on PyPI and never will be, and `--strict` makes an
+          # unresolvable dependency fatal — so auditing our own package could
+          # never pass:
+          #   ERROR: cdl-validator: Dependency not found on PyPI and could not
+          #          be audited: cdl-validator (0.1.0)
+          #
+          # Excluding it narrows the audit to third-party code, which is the
+          # only code an advisory database can have anything to say about.
+          # Every real dependency is still audited, and --strict still stands.
+          pip freeze | grep -vE '^(-e |cdl-validator([=@ ]|$))' > /tmp/audit-reqs.txt
+          pip-audit --strict -r /tmp/audit-reqs.txt
 
   deploy:
     needs: check
