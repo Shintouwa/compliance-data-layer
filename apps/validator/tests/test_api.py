@@ -150,6 +150,38 @@ def test_specs_reports_every_profile_as_unresolved(client: TestClient) -> None:
     assert all(s["version"] == "RESOLVE_IN_WEEK_1" for s in specs)
 
 
+def test_specs_lists_a_quarantined_profile_with_its_reason_and_no_hash(
+    client: TestClient,
+) -> None:
+    """A caller that has been sending this profile must be able to find out why
+    it stopped working. Hiding it from /specs leaves them with only a 400."""
+    specs = client.get("/specs").json()["specs"]
+    by_id = {s["spec_id"]: s for s in specs}
+
+    peppol = by_id["peppol-bis-3.0"]
+    assert peppol["unavailable"], "the quarantine must be visible on the wire"
+    assert "stylesheet-ubl.xslt" in peppol["unavailable"]
+    assert peppol["ruleset_hash"] is None, (
+        "a quarantined profile has no compiled ruleset, so it has no hash. "
+        "Reporting one would let a caller record a finding against a hash that "
+        "never produced it."
+    )
+
+    for spec_id in ("en16931", "pint-ae"):
+        assert by_id[spec_id]["unavailable"] is None
+        assert by_id[spec_id]["ruleset_hash"].startswith("sha256:")
+
+
+def test_validate_refuses_a_quarantined_profile_even_with_the_flag(
+    client: TestClient, provisional: None
+) -> None:
+    """The provisional flag unlocks an unresolved VERSION, never a missing
+    RULESET. 400 and not 500: this is a decision working, not a fault."""
+    response = client.post("/validate", json=payload(GOLDEN_INVOICE, profile="peppol-bis-3.0"))
+    assert response.status_code == 400
+    assert "peppol-bis-3.0" not in response.json()["available"]
+
+
 def test_cii_syntax_is_refused_for_a_ubl_only_profile(
     client: TestClient, provisional: None
 ) -> None:

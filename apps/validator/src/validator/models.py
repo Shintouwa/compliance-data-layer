@@ -163,7 +163,14 @@ class SpecDescriptor(BaseModel):
     jurisdiction: str
     version: str
     syntaxes: list[Syntax]
-    ruleset_hash: str
+    ruleset_hash: str | None = Field(
+        description=(
+            "null only when `unavailable` is set. A quarantined profile has no "
+            "compiled ruleset, so it has no hash — and reporting a plausible "
+            "one would let a caller record a finding against a hash that never "
+            "produced it."
+        )
+    )
     resolved: bool = Field(
         description=(
             "False while `version` is the RESOLVE_IN_WEEK_1 sentinel. An "
@@ -171,6 +178,16 @@ class SpecDescriptor(BaseModel):
             "CDL_ALLOW_PROVISIONAL_RULESET=1. architecture.md 'How an agent "
             "must use this file' (2)."
         )
+    )
+    unavailable: str | None = Field(
+        default=None,
+        description=(
+            "When non-null, the profile is quarantined and /validate refuses it "
+            "unconditionally — the flag does not unlock a quarantine. The string "
+            "states who withdrew it and on what evidence. The profile is still "
+            "listed rather than hidden: a caller that has been sending this "
+            "profile needs to find out why it stopped, not watch it vanish."
+        ),
     )
 
 

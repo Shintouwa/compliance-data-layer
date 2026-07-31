@@ -169,8 +169,11 @@ export interface components {
              * @description False while `version` is the RESOLVE_IN_WEEK_1 sentinel. An unresolved spec is refused by /validate unless CDL_ALLOW_PROVISIONAL_RULESET=1. architecture.md 'How an agent must use this file' (2).
              */
             resolved: boolean;
-            /** Ruleset Hash */
-            ruleset_hash: string;
+            /**
+             * Ruleset Hash
+             * @description null only when `unavailable` is set. A quarantined profile has no compiled ruleset, so it has no hash — and reporting a plausible one would let a caller record a finding against a hash that never produced it.
+             */
+            ruleset_hash: string | null;
             /**
              * Spec Id
              * @enum {string}
@@ -178,6 +181,11 @@ export interface components {
             spec_id: "pint-ae" | "en16931" | "peppol-bis-3.0" | "factur-x" | "xrechnung" | "ksef-fa3";
             /** Syntaxes */
             syntaxes: ("UBL-2.1" | "CII-D16B")[];
+            /**
+             * Unavailable
+             * @description When non-null, the profile is quarantined and /validate refuses it unconditionally — the flag does not unlock a quarantine. The string states who withdrew it and on what evidence. The profile is still listed rather than hidden: a caller that has been sending this profile needs to find out why it stopped, not watch it vanish.
+             */
+            unavailable?: string | null;
             /** Version */
             version: string;
         };

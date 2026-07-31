@@ -30,6 +30,7 @@ from .errors import (
     EngineFailureError,
     ParseError,
     ProvisionalRulesetRefused,
+    SpecQuarantined,
     RedactionInvariantError,
     SchematronCompileError,
     SchematronUnsupportedError,
@@ -219,6 +220,21 @@ async def _validator_error_handler(request: Request, exc: ValidatorError) -> JSO
             content=UnknownSpecBody(available=exc.available).model_dump(),
         )
 
+    if isinstance(exc, SpecQuarantined):
+        # 400, not 500: the profile is withdrawn by decision, and the machinery
+        # is working exactly as intended. A 500 here would page someone.
+        _log.error("spec quarantined: %s", exc)
+        return JSONResponse(
+            status_code=400,
+            content=UnknownSpecBody(
+                available=[
+                    spec_id
+                    for spec_id in available_spec_ids()
+                    if not load_spec(spec_id).is_quarantined
+                ]
+            ).model_dump(),
+        )
+
     if isinstance(exc, ProvisionalRulesetRefused):
         # Semantically "that version is not available for use". The full reason
         # goes to the log, not to an unauthenticated caller.
@@ -296,14 +312,21 @@ def specs() -> SpecsResponse:
     descriptors: list[SpecDescriptor] = []
     for spec_id in available_spec_ids():
         entry = load_spec(spec_id)
+        # A quarantined profile is listed, with its reason and no hash. Dropping
+        # it from the response would leave a caller that has been sending this
+        # profile to infer the cause from a 400, and there is nothing in a 400
+        # to infer it from.
         descriptors.append(
             SpecDescriptor(
                 spec_id=entry.spec_id,
                 jurisdiction=entry.jurisdiction,
                 version=entry.version,
                 syntaxes=list(entry.syntaxes),
-                ruleset_hash=get_ruleset(spec_id).ruleset_hash,
+                ruleset_hash=(
+                    None if entry.is_quarantined else get_ruleset(spec_id).ruleset_hash
+                ),
                 resolved=entry.is_resolved,
+                unavailable=entry.unavailable,
             )
         )
     return SpecsResponse(specs=descriptors)

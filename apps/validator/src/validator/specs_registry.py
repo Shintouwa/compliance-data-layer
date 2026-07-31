@@ -32,7 +32,7 @@ from typing import Final
 from pydantic import BaseModel, ConfigDict, Field
 
 from .engine import CompiledRuleset, compile_ruleset
-from .errors import ProvisionalRulesetRefused, UnknownSpecError
+from .errors import ProvisionalRulesetRefused, SpecQuarantined, UnknownSpecError
 from .models import ProfileId, Syntax
 
 __all__ = [
@@ -86,10 +86,24 @@ class SpecEntry(BaseModel):
     issuance_window_days: int | None = None
     ruleset_hash: str = "COMPUTED_AT_BUILD"
 
+    # Quarantine. A profile whose ruleset cannot be executed is withdrawn HERE,
+    # in the reviewed 🔒 registry entry, carrying the reason it was withdrawn --
+    # not by deleting the entry and not by leaving it to fail at load with
+    # whatever error the filesystem happens to produce.
+    #
+    # A string, not a bool, on purpose: `unavailable: true` tells a reader
+    # nothing six months later, and a quarantine with no stated reason gets
+    # lifted by the first person who finds it inconvenient.
+    unavailable: str | None = None
+
     @property
     def is_resolved(self) -> bool:
         """False while `version` is the unresolved-spec sentinel."""
         return self.version != RESOLVE_SENTINEL
+
+    @property
+    def is_quarantined(self) -> bool:
+        return self.unavailable is not None
 
     @property
     def schematron_paths(self) -> list[Path]:
@@ -122,6 +136,11 @@ def get_ruleset(spec_id: str) -> CompiledRuleset:
     stateless sidecar: the files cannot change under a running process.
     """
     entry = load_spec(spec_id)
+    # Before touching the filesystem. A quarantined profile must report the
+    # decision that withdrew it, not a FileNotFoundError from a path that was
+    # never going to be there.
+    if entry.unavailable is not None:
+        raise SpecQuarantined(entry.spec_id, entry.unavailable)
     return compile_ruleset(
         spec_id=entry.spec_id,
         schematron_paths=entry.schematron_paths,
@@ -130,7 +149,10 @@ def get_ruleset(spec_id: str) -> CompiledRuleset:
 
 
 def assert_usable(entry: SpecEntry, requested_version: str | None = None) -> None:
-    """Refuse to validate against an unresolved or mismatched spec version."""
+    """Refuse to validate against a quarantined, unresolved or mismatched spec."""
+    if entry.unavailable is not None:
+        raise SpecQuarantined(entry.spec_id, entry.unavailable)
+
     if not entry.is_resolved and not provisional_allowed():
         raise ProvisionalRulesetRefused(
             f"Spec {entry.spec_id!r} has version={RESOLVE_SENTINEL!r}: its "

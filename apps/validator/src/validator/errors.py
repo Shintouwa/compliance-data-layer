@@ -18,6 +18,7 @@ __all__ = [
     "RedactionInvariantError",
     "SchematronCompileError",
     "SchematronUnsupportedError",
+    "SpecQuarantined",
     "UnknownSpecError",
     "UnsupportedSyntaxError",
     "ValidatorError",
@@ -101,6 +102,25 @@ class ProvisionalRulesetRefused(ValidatorError):
     The corpus runner sets CDL_ALLOW_PROVISIONAL_RULESET=1 because its whole
     purpose is to exercise the machinery. No client-facing path may.
     """
+
+
+class SpecQuarantined(ValidatorError):
+    """The profile is deliberately withdrawn from service, with a stated reason.
+
+    Distinct from UnknownSpecError on purpose. "Unknown profile" invites the
+    reader to check the spelling; a quarantine is a decision someone made, and
+    the reason string says who decided what and on what evidence. A missing-file
+    error for a file that was never supposed to be there reads like a broken
+    install and gets "fixed" by putting something plausible in its place.
+
+    The reason lives in the registry entry (`unavailable`), so it is reviewed as
+    part of the 🔒 specs/** diff rather than buried in code.
+    """
+
+    def __init__(self, spec_id: str, reason: str) -> None:
+        super().__init__(f"spec_quarantined: {spec_id!r} is not available. {reason}")
+        self.spec_id = spec_id
+        self.reason = reason
 
 
 class RedactionInvariantError(ValidatorError):

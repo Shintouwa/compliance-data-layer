@@ -262,8 +262,16 @@
             "type": "boolean"
           },
           "ruleset_hash": {
-            "title": "Ruleset Hash",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null only when `unavailable` is set. A quarantined profile has no compiled ruleset, so it has no hash \u2014 and reporting a plausible one would let a caller record a finding against a hash that never produced it.",
+            "title": "Ruleset Hash"
           },
           "spec_id": {
             "enum": [
@@ -287,6 +295,18 @@
             },
             "title": "Syntaxes",
             "type": "array"
+          },
+          "unavailable": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When non-null, the profile is quarantined and /validate refuses it unconditionally \u2014 the flag does not unlock a quarantine. The string states who withdrew it and on what evidence. The profile is still listed rather than hidden: a caller that has been sending this profile needs to find out why it stopped, not watch it vanish.",
+            "title": "Unavailable"
           },
           "version": {
             "title": "Version",

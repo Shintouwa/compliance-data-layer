@@ -2,6 +2,7 @@
   "spec_id": "peppol-bis-3.0",
   "jurisdiction": "EU",
   "version": "RESOLVE_IN_WEEK_1",
+  "unavailable": "QUARANTINED 2026-07-30 by the human lead. No SVRL-emitting stylesheet has been obtained for Peppol BIS 3.0. The file vendored as peppol-bis-3.0/published/stylesheet-ubl.xslt is OpenPeppol's HTML report formatter -- it declares <xsl:output method=\"html\" version=\"5.0\"/> and produces a web page, not an svrl:schematron-output document -- so the SVRL engine has nothing to execute for this profile. The two .sch files beside it (CEN-EN16931-UBL.sch, PEPPOL-EN16931-UBL.sch) are published sources but are not preprocessed: they carry sch:include and call xsl:function u:gln / u:mod11 / u:slack / u:mod97-0208, so they cannot be compiled without the ISO skeleton run that upstream applies before release. Lift this quarantine ONLY by obtaining the preprocessed distribution from the primary source and recording it in PROVENANCE.md -- never by pointing schematron at the agent-authored provisional peppol-bis-3.0/PEPPOL-BIS-3.0.sch and calling the profile available. See specs/PROVENANCE.md and specs/RULES.md.",
   "syntaxes": ["UBL-2.1"],
   "schematron": ["peppol-bis-3.0/PEPPOL-BIS-3.0.sch", "en16931/EN16931-UBL-model.sch"],
   "codelists": ["ISO4217", "ISO3166", "UNECE_REC20", "UNTDID5305", "UNCL1001"],

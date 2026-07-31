@@ -57,6 +57,7 @@
     "peppol-bis-3.0": {
       "jurisdiction": "EU",
       "version": "RESOLVE_IN_WEEK_1",
+      "unavailable": "QUARANTINED 2026-07-30 by the human lead. No SVRL-emitting stylesheet has been obtained for Peppol BIS 3.0. The sidecar registry entry (apps/validator/src/validator/specs/registry/peppol-bis-3.0.json) carries the full reason. Recorded here because the web app and CI read THIS file, and a profile withdrawn in the sidecar but still advertised here is exactly the drift test_specs_registry.py exists to catch.",
       "ruleset_hash": "sha256:6087bb0c4b7faa26a6f100b9ebadf0a72fa8ebd57474d7f61085e346c6f663e1",
       "resolved": false,
       "primary_source": "OpenPeppol BIS Billing 3.0 and its published Schematron",
@@ -66,7 +67,7 @@
         "upstream": "github.com/OpenPEPPOL/peppol-bis-invoice-3",
         "commit": "261c458474e27d58a25be629cccac28883171c92",
         "tag": "v3.0.20",
-        "rules": 151
+        "rules": 159
       }
     }
   },

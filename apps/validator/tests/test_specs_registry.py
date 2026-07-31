@@ -14,7 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from validator.errors import ProvisionalRulesetRefused, UnknownSpecError
+from validator.errors import (
+    ProvisionalRulesetRefused,
+    SpecQuarantined,
+    UnknownSpecError,
+)
 from validator.specs_registry import (
     RESOLVE_SENTINEL,
     assert_usable,
@@ -82,6 +86,54 @@ def test_pint_ae_scenario_map_matches_architecture_md() -> None:
     )
 
 
+def test_peppol_bis_is_quarantined_with_a_stated_reason() -> None:
+    """The quarantine is a decision, so it must carry the decision's reasoning.
+
+    Asserting on the presence and shape of the reason, not on its wording: what
+    must not happen is a quarantine that someone lifts because nothing explains
+    why it is there.
+    """
+    entry = load_spec("peppol-bis-3.0")
+    assert entry.is_quarantined
+    reason = entry.unavailable
+    assert reason is not None
+    assert "stylesheet-ubl.xslt" in reason, "the reason must name the evidence"
+    assert "PROVENANCE.md" in reason, "the reason must say where to look to lift it"
+
+
+def test_a_quarantined_profile_raises_naming_the_quarantine() -> None:
+    """Not a FileNotFoundError, and not UnknownSpecError.
+
+    "Unknown profile" invites a reader to check the spelling. A missing file
+    invites them to supply one. Both lead somewhere wrong.
+    """
+    with pytest.raises(SpecQuarantined) as caught:
+        get_ruleset("peppol-bis-3.0")
+    assert caught.value.spec_id == "peppol-bis-3.0"
+    assert "stylesheet-ubl.xslt" in str(caught.value)
+
+
+def test_a_quarantine_is_not_unlocked_by_the_provisional_flag(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """CDL_ALLOW_PROVISIONAL_RULESET is about an unresolved VERSION, not a
+    missing RULESET. The corpus runner sets it, and it must not smuggle a
+    profile with nothing to execute back into service."""
+    monkeypatch.setenv("CDL_ALLOW_PROVISIONAL_RULESET", "1")
+    with pytest.raises(SpecQuarantined):
+        assert_usable(load_spec("peppol-bis-3.0"))
+
+
+def test_a_quarantined_profile_is_still_listed() -> None:
+    """Quarantine is withdrawal, not deletion.
+
+    Deleting the registry entry would make the profile indistinguishable from
+    one that never existed, and would silently drop its 14 corpus cases from
+    view instead of reporting them as a debt.
+    """
+    assert "peppol-bis-3.0" in available_spec_ids()
+
+
 @pytest.mark.parametrize("spec_id", ["pint-ae", "en16931", "peppol-bis-3.0"])
 def test_specs_json_does_not_drift_from_the_installed_rulesets(spec_id: str) -> None:
     """🔒 packages/config/specs.json must describe what is actually installed."""
@@ -91,6 +143,18 @@ def test_specs_json_does_not_drift_from_the_installed_rulesets(spec_id: str) -> 
     assert declared["version"] == entry.version
     assert declared["jurisdiction"] == entry.jurisdiction
     assert declared["resolved"] == entry.is_resolved
+
+    if entry.is_quarantined:
+        # No compiled ruleset, so there is no hash to compare. Asserting the
+        # quarantine is recorded in specs.json instead: the web app and CI read
+        # that file, and a profile withdrawn in the sidecar but still advertised
+        # there is exactly the drift this test exists to catch.
+        assert declared.get("unavailable"), (
+            f"{spec_id} is quarantined in the sidecar registry but specs.json "
+            f"does not record it. The web app reads specs.json."
+        )
+        return
+
     assert declared["ruleset_hash"] == get_ruleset(spec_id).ruleset_hash, (
         f"specs.json ruleset_hash for {spec_id} is stale. A ruleset or code "
         f"list changed without specs.json being updated, which means a finding "
@@ -99,8 +163,11 @@ def test_specs_json_does_not_drift_from_the_installed_rulesets(spec_id: str) -> 
 
 
 def test_ruleset_hashes_are_distinct_per_profile() -> None:
-    hashes = {get_ruleset(spec_id).ruleset_hash for spec_id in available_spec_ids()}
-    assert len(hashes) == len(available_spec_ids())
+    runnable = [
+        spec_id for spec_id in available_spec_ids() if not load_spec(spec_id).is_quarantined
+    ]
+    hashes = {get_ruleset(spec_id).ruleset_hash for spec_id in runnable}
+    assert len(hashes) == len(runnable)
 
 
 def test_pint_ae_layers_the_core_model_under_its_own_rules() -> None:
