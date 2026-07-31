@@ -7,6 +7,7 @@
 
 import { z } from 'zod';
 import { runValidation } from '../../modules/audit';
+import { SpecIdentifiersUnresolved, ublSpecIdentifiers } from '../../modules/mapping';
 import { resolveEntity } from '../../modules/tenancy';
 import { defineHandler } from '../_handler';
 import { enqueueInTransaction } from '../enqueue';
@@ -29,15 +30,28 @@ const schema = z.object({
 });
 
 export const handler = defineHandler(JOB.VALIDATE_RUN, schema, async (p, ctx) => {
-  if (p.customizationId === undefined || p.profileId === undefined) {
-    // `cbc:CustomizationID` and `cbc:ProfileID` identify the specification the
-    // document claims conformance to. They are published values; guessing one
-    // produces a document that validates against a ruleset nobody agreed to.
-    throw new UnrecoverableError(
-      'validate.run requires customizationId and profileId for the target profile. ' +
-        'They are published by the specification and are not in packages/config/specs.json ' +
-        'yet — resolve them from primary source first. CLAUDE.md §4.7(1).',
-    );
+  // `cbc:CustomizationID` and `cbc:ProfileID` identify the specification the
+  // document claims conformance to. They are published values; guessing one
+  // produces a document that validates against a ruleset nobody agreed to.
+  //
+  // For `pint-ae` they are now resolved — quoted from the vendored PINT AE
+  // Schematron and pinned to its bytes by a test (modules/mapping/
+  // spec-identifiers.ts). They are derived PER DOCUMENT inside `runValidation`,
+  // because a self-billed invoice is a different Peppol business process.
+  //
+  // An explicit pair on the payload still overrides, for a profile that has
+  // none. Absent both, the job stops here rather than partway through a batch.
+  const override = p.customizationId !== undefined && p.profileId !== undefined
+    ? { customizationId: p.customizationId, profileId: p.profileId }
+    : undefined;
+
+  if (override === undefined) {
+    try {
+      ublSpecIdentifiers(p.profile, 'invoice');
+    } catch (err) {
+      if (err instanceof SpecIdentifiersUnresolved) throw new UnrecoverableError(err.message);
+      throw err;
+    }
   }
 
   const entity = await resolveEntity(p.entityId);
@@ -54,12 +68,11 @@ export const handler = defineHandler(JOB.VALIDATE_RUN, schema, async (p, ctx) =>
       specVersion: p.specVersion,
       direction: p.direction,
       ubl: {
-        customizationId: p.customizationId,
-        profileId: p.profileId,
         sellerName: null,
         sellerCountry: entity.jurisdiction,
         buyerCountry: null,
       },
+      ...(override === undefined ? {} : { ublIdentifiers: override }),
       ...(p.traceId === undefined ? {} : { traceId: p.traceId }),
     },
     ctx.log,

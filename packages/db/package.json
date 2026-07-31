@@ -5,6 +5,10 @@
   "type": "module",
   "main": "./index.ts",
   "types": "./index.ts",
+  "scripts": {
+    "$comment": "--env-file-if-exists so the script works both from a local checkout (.env at the repo root) and from a CI/production shell where CORPUS_DATABASE_URL is already exported.",
+    "seed:rules": "tsx --env-file-if-exists=../../.env scripts/seed-rules.ts"
+  },
   "exports": {
     ".": "./index.ts",
     "./corpus-connection": "./corpus-connection.ts",
@@ -22,6 +26,8 @@
   },
   "devDependencies": {
     "@types/pg": "^8.15.6",
-    "drizzle-kit": "^0.31.10"
+    "drizzle-kit": "^0.31.10",
+    "fast-xml-parser": "^5.10.1",
+    "tsx": "^4.23.1"
   }
 }

@@ -41,25 +41,28 @@ export async function startWorkers(boss: PgBoss): Promise<void> {
 /**
  * Boot the queue system: connect, register every queue, then start the workers.
  *
- * ⚠️ OPEN DEPLOYMENT QUESTION, flagged rather than invented.
+ * **This is the LONG-LIVED-PROCESS entrypoint, and Vercel is not one.**
  *
- * Nothing calls this yet. pg-boss workers need a process that outlives a
- * request, and §1.9 hosts the web app on Vercel, whose serverless runtime does
- * not provide one. Where the worker process runs is not specified in
- * architecture.md, and the options are not equivalent — a Heroku worker dyno
- * beside the sidecar, a cron-triggered route that drains a batch per
- * invocation, and a separate always-on host all change the retry and lease
- * semantics that Part IV §2 depends on.
+ * `startWorkers` calls `boss.work()`, which starts a polling loop. That is
+ * correct on a host with a process — a container, a Heroku worker dyno, a local
+ * `make dev` — and wrong on Vercel, where the loop dies with the response and
+ * anything it had leased sits `active` until `expireInSeconds` elapses.
  *
- * This was briefly wired through `instrumentation.ts`. That does not work:
- * Next compiles the instrumentation hook for the EDGE runtime as well as for
- * node, `pg` needs `fs` and `dns`, and `next build` fails outright — with a
- * `NEXT_RUNTIME === 'nodejs'` guard and a dynamic import already in place,
- * because webpack still traces the import. Removed rather than worked around,
- * so that the gap stays visible instead of looking solved.
+ * On Vercel the runner is `jobs/drain.ts`, called by `GET /api/cron/work` on a
+ * Vercel Cron Job (apps/web/README.md). It uses `boss.fetch()` and settles each
+ * job explicitly, so a slice always ends between jobs. Retry and lease
+ * semantics are unchanged either way: they are queue configuration in
+ * `registry.ts`, not properties of the runner.
  *
- * Until the host is chosen, jobs accumulate in `pgboss.job`, which is visible
- * in SQL — the reason pg-boss was chosen in the first place (§1.7).
+ * The history, so it is not rediscovered: this was briefly wired through
+ * `instrumentation.ts`. That does not work — Next compiles the instrumentation
+ * hook for the EDGE runtime as well as for node, `pg` needs `fs` and `dns`, and
+ * `next build` fails outright, with a `NEXT_RUNTIME === 'nodejs'` guard and a
+ * dynamic import already in place, because webpack still traces the import.
+ *
+ * Nothing in the deployed app calls this. It stays because a worker host with a
+ * real process is the better answer if one ever exists, and because `make dev`
+ * can use it.
  */
 export async function start(boss: PgBoss): Promise<void> {
   await boss.start();

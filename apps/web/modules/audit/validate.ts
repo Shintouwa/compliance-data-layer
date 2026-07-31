@@ -28,8 +28,8 @@ import type { Logger } from '../../lib/logger';
 import { recurrenceKey } from '../corpus';
 import { expiresInNinetyDays } from '../ingestion';
 import type { CanonicalDoc } from '../ingestion';
-import { toUbl } from '../mapping';
-import type { UblContext } from '../mapping';
+import { toUbl, ublSpecIdentifiers } from '../mapping';
+import type { SpecIdentifiers, UblContext } from '../mapping';
 import { withTenantAccess } from '../tenancy';
 
 /**
@@ -53,7 +53,24 @@ export interface ValidateRunInput {
   readonly profile: ValidateRequest['profile'];
   readonly specVersion: string;
   readonly direction: FlowDirection;
-  readonly ubl: UblContext;
+  /**
+   * The party half of the UBL context. The specification identifiers are NOT
+   * here: they depend on the document, not on the run — Peppol models a
+   * self-billed invoice as a different business process
+   * (`urn:peppol:bis:selfbilling`) from an ordinary one, and a batch can mix
+   * both. One context for a whole batch would stamp the wrong process onto
+   * every self-billed document in it.
+   */
+  readonly ubl: Omit<UblContext, 'customizationId' | 'profileId'>;
+  /**
+   * Forces one identifier pair for every document in the run, instead of
+   * deriving it from `profile` and the document type.
+   *
+   * The escape hatch for a profile `ublSpecIdentifiers` cannot answer for. The
+   * caller then owns the value, and CLAUDE.md §4.7(1) still applies to it: it
+   * must have been resolved from primary source, not composed here.
+   */
+  readonly ublIdentifiers?: SpecIdentifiers;
   readonly traceId?: string;
 }
 
@@ -119,11 +136,19 @@ export async function runValidation(
     const loaded = await withTenantAccess(access, (ctx) => loadCanonical(ctx, input, chunk));
 
     for (const { invoiceId, docHash, doc } of loaded) {
+      // Resolved per document. `ublSpecIdentifiers` throws for a profile whose
+      // identifiers are unresolved rather than defaulting — the handler checks
+      // for that before enqueuing any work, so it does not fire mid-batch.
+      const ubl: UblContext = {
+        ...input.ubl,
+        ...(input.ublIdentifiers ?? ublSpecIdentifiers(input.profile, doc.docType)),
+      };
+
       let response;
       try {
         response = await validateDocument({
           run_id: input.runId,
-          document: Buffer.from(toUbl(doc, input.ubl), 'utf8').toString('base64'),
+          document: Buffer.from(toUbl(doc, ubl), 'utf8').toString('base64'),
           syntax: 'UBL-2.1',
           profile: input.profile,
           spec_version: input.specVersion,

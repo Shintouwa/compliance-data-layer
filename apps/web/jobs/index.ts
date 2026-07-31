@@ -7,6 +7,8 @@
  */
 
 export { bootQueues, start, startWorkers } from './boot';
+export { budgetFromEnv, DEFAULT_BUDGET_MS, drainQueues, ensureStarted } from './drain';
+export type { DrainOptions, DrainResult } from './drain';
 export { enqueueInTransaction, txExecutor } from './enqueue';
 export { defineHandler } from './_handler';
 export type { BaseJobPayload, JobCtx, RegisteredHandler } from './_handler';

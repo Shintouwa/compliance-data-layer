@@ -12,5 +12,9 @@ export type {
 } from './apply';
 export { confirmProfile, createProfile, listProfiles } from './profile';
 export type { ProfileSummary } from './profile';
+export {
+  billingProcessFor, hasSpecIdentifiers, SpecIdentifiersUnresolved, ublSpecIdentifiers,
+} from './spec-identifiers';
+export type { BillingProcess, SpecIdentifiers } from './spec-identifiers';
 export { MissingSpecIdentifiers, toUbl } from './ubl';
 export type { UblContext } from './ubl';

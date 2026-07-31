@@ -42,6 +42,9 @@ export {
   EVIDENCE_RETENTION_YEARS, expiresInNinetyDays, expiresInSevenYears, RAW_RETENTION_DAYS,
 } from './retention';
 
-export { deleteObjects, storageKeyFor } from './storage';
+export {
+  deleteObjects, LocalStorageRefusedInProduction, storageBackendKind, storageKeyFor,
+  UnsafeStorageKey,
+} from './storage';
 
 export { valueShape } from './shape';

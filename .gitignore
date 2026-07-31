@@ -23,10 +23,22 @@ __pycache__/
 .env.*
 !.env.example
 
+# Loose credential scratch files. This repository is PUBLIC and `git add -A` is
+# one keystroke; a file holding a live Neon connection string and a Clerk secret
+# key must be unstageable by construction, not by remembering.
+Api Keys.txt
+*[Aa]pi*[Kk]eys*.txt
+*.pem
+*.key
+
 # local
 .DS_Store
 Thumbs.db
 *.log
+
+# Local object storage. `modules/ingestion/storage.ts` writes sealed blobs here
+# when R2 is not configured — real client bytes, envelope-encrypted, but bytes.
+tmp/
 
 # ---------------------------------------------------------------------------
 # Commercially sensitive — this repository is PUBLIC.
