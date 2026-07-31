@@ -43,7 +43,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ..errors import ValidatorError
 from ..models import ProfileId, Syntax
-from ..specs_registry import PROVISIONAL_ENV_FLAG
+from ..specs_registry import PROVISIONAL_ENV_FLAG, load_spec
 
 __all__ = ["FORBIDDEN_PATTERNS", "assert_fail_balance", "main"]
 
@@ -116,7 +116,17 @@ class CorpusCase(BaseModel):
     input: ExpectedInput
     spec: ExpectedSpec
     expect: Expectation
-    provenance: Literal["synthetic", "client_derived", "spec_example"]
+    # mechanically_derived_pending_review: the document was produced by mutating
+    # a known-conformant fixture to violate ONE named rule, and fired_rules was
+    # written from that rule's @test, never from engine output. It carries no
+    # human sign-off yet — the value exists so that "nobody has reviewed this"
+    # is a fact in the file rather than something you have to remember.
+    provenance: Literal[
+        "synthetic",
+        "client_derived",
+        "spec_example",
+        "mechanically_derived_pending_review",
+    ]
     added_in: str
 
 
@@ -125,11 +135,224 @@ class Report:
     checked: int = 0
     failed: int = 0
     superset_cases: int = 0
+    quarantined: int = 0
     problems: list[str] = field(default_factory=list)
+    # spec_id -> the rule IDs some case in the corpus actually made fire.
+    exercised: dict[str, set[str]] = field(default_factory=dict)
+    # spec_id -> the rule IDs whose sch:rule/@context matched at least one node
+    # in at least one corpus document. A rule can be in here and NOT in
+    # `exercised`: that is the "evaluated, always true" case, and it is the one
+    # a bare fired/declared ratio cannot distinguish from "never looked at".
+    context_present: dict[str, set[str]] = field(default_factory=dict)
+    # spec_id -> rule IDs whose context could not be evaluated for bucketing.
+    # Never silently folded into another bucket -- see _report_reachability.
+    context_undetermined: dict[str, set[str]] = field(default_factory=dict)
 
     def fail(self, case_id: str, message: str) -> None:
         self.failed += 1
         self.problems.append(f"{case_id}: {message}")
+
+    def record_exercised(self, spec_id: str, rule_ids: set[str]) -> None:
+        self.exercised.setdefault(spec_id, set()).update(rule_ids)
+
+    def record_context_present(self, spec_id: str, rule_ids: set[str]) -> None:
+        self.context_present.setdefault(spec_id, set()).update(rule_ids)
+
+    def record_context_undetermined(self, spec_id: str, rule_ids: set[str]) -> None:
+        self.context_undetermined.setdefault(spec_id, set()).update(rule_ids)
+
+
+# Rules PROVEN unable to match any conforming document, by human review, with
+# the proof recorded next to the entry. Deliberately empty and deliberately
+# hand-maintained: "unreachable" is a claim about every possible document, and a
+# corpus cannot establish it by not having got there yet. Anything inferred
+# would be a proof this file did not do.
+PROVEN_UNREACHABLE: Final[dict[str, frozenset[str]]] = {}
+
+_WRAPPED_CONTEXT: Final = re.compile(r"^//\((.*)\)$", re.S)
+
+
+def _context_to_xpath1(expr: str) -> str | None:
+    """Re-express an engine context expression for lxml, or None if it cannot be.
+
+    engine._context_to_expression wraps a match pattern as `//(A | B)`, which is
+    XPath 2.0 syntax that lxml cannot parse. `//A | //B` is the XPath 1.0
+    equivalent for the union-of-name-tests forms our rulesets use. Anything else
+    returns None and is reported as UNDETERMINED rather than being guessed at.
+    """
+    expr = expr.strip()
+    match = _WRAPPED_CONTEXT.match(expr)
+    if match is None:
+        return expr if expr.startswith("/") else None
+    branches = [branch.strip() for branch in match.group(1).split("|")]
+    if not all(branches):
+        return None
+    return " | ".join(f"//{branch}" for branch in branches)
+
+
+def _record_context_presence(spec_id: str, document: bytes, report: Report) -> None:
+    """Note which rules' contexts this document actually selects a node for.
+
+    This is what separates "the rule ran and was satisfied" from "the rule never
+    ran at all". Both look identical in a fired/declared ratio, and only one of
+    them is evidence of anything.
+    """
+    from lxml import etree as _etree
+
+    from ..specs_registry import get_ruleset
+
+    try:
+        ruleset = get_ruleset(spec_id)
+    except ValidatorError:
+        return
+
+    try:
+        root = _etree.fromstring(
+            document,
+            parser=_etree.XMLParser(resolve_entities=False, no_network=True, load_dtd=False),
+        )
+    except _etree.XMLSyntaxError:
+        return  # _check_case already reports the parse failure
+
+    namespaces = {prefix: uri for prefix, uri in ruleset.namespaces if prefix}
+    present: set[str] = set()
+    undetermined: set[str] = set()
+
+    for pattern in ruleset.patterns:
+        for ctx in pattern.contexts:
+            rule_ids = {rule.rule_id for rule in ctx.rules}
+            xpath1 = _context_to_xpath1(ctx.context_expr)
+            if xpath1 is None:
+                undetermined |= rule_ids
+                continue
+            try:
+                matched = root.xpath(xpath1, namespaces=namespaces)
+            except _etree.XPathError:
+                undetermined |= rule_ids
+                continue
+            if isinstance(matched, list) and matched:
+                present |= rule_ids
+
+    report.record_context_present(spec_id, present)
+    report.record_context_undetermined(spec_id, undetermined - present)
+
+
+def _report_reachability(report: Report) -> None:
+    """Print how much of each executed ruleset the corpus actually made fire.
+
+    REPORTED, NOT GATED — deliberately, and the distinction is the point.
+
+    A rule no case makes fire records "did not fire", and in a corpus that is
+    indistinguishable from a rule that passed. The number below is the size of
+    that blind spot for the ruleset the runner is CURRENTLY executing.
+
+    It does not, and must not, claim to be the reachability audit. Three things
+    it cannot see:
+
+      - Whether an un-exercised rule COULD fire at all. Some cannot: a guard no
+        conforming document can open makes a rule permanently silent, and that
+        is a different and worse condition than "no fixture written yet".
+        Separating the two needs a proof per rule, not a count.
+      - The published rulesets. These numbers cover the provisional
+        CDL-PROV-* rules the engine can execute today, not the vendored
+        Schematron the corpus is being authored against.
+      - Rules that fired but only because a guard was closed, which is a pass
+        the corpus cannot distinguish from a real one.
+
+    So: a number that goes UP is good news and a number that goes DOWN is worth
+    a look, and neither is a verdict. Gating on it before the published rulesets
+    are wired in would gate on the wrong denominator.
+    """
+    from ..specs_registry import get_ruleset
+
+    # Every spec_id that had at least one case reach a verdict. Keyed on the
+    # case's spec_id, never on the corpus directory name: tests/corpus/uae
+    # carries spec_id "pint-ae", and joining on the directory would silently
+    # report nothing for the one profile that matters most.
+    executed = sorted(report.exercised)
+    if not executed:
+        return
+
+    print("\nRule coverage (reported, NOT gated) - provisional rulesets:")
+    print(
+        f"  {'profile':<16} {'assert':>6} {'exerc':>6} {'always-T':>9} "
+        f"{'ctx-absent':>11} {'unreach':>8} {'undet':>6}"
+    )
+
+    totals = dict.fromkeys(
+        ("declared", "fired", "always_true", "absent", "unreachable", "undetermined"), 0
+    )
+    detail: list[tuple[str, list[str], list[str]]] = []
+
+    for spec_id in executed:
+        try:
+            declared = set(get_ruleset(spec_id).rule_ids)
+        except ValidatorError as exc:
+            print(f"  {spec_id:<16} ruleset unavailable: {exc}")
+            continue
+
+        fired = report.exercised.get(spec_id, set()) & declared
+        undetermined = report.context_undetermined.get(spec_id, set()) & declared
+        # A rule that fired obviously had its context present, whatever the
+        # bucketing pass concluded; union so the two can never disagree.
+        present = (report.context_present.get(spec_id, set()) & declared) | fired
+
+        always_true = present - fired
+        absent = declared - present - undetermined
+        unreachable = PROVEN_UNREACHABLE.get(spec_id, frozenset()) & absent
+
+        totals["declared"] += len(declared)
+        totals["fired"] += len(fired)
+        totals["always_true"] += len(always_true)
+        totals["absent"] += len(absent)
+        totals["unreachable"] += len(unreachable)
+        totals["undetermined"] += len(undetermined)
+
+        print(
+            f"  {spec_id:<16} {len(declared):>6} {len(fired):>6} {len(always_true):>9} "
+            f"{len(absent):>11} {len(unreachable):>8} {len(undetermined):>6}"
+        )
+        detail.append((spec_id, sorted(always_true), sorted(absent)))
+
+    print(
+        f"  {'TOTAL':<16} {totals['declared']:>6} {totals['fired']:>6} "
+        f"{totals['always_true']:>9} {totals['absent']:>11} "
+        f"{totals['unreachable']:>8} {totals['undetermined']:>6}"
+    )
+
+    for spec_id, always_true_ids, absent_ids in detail:
+        if always_true_ids:
+            print(f"    {spec_id} evaluated, never once false: {' '.join(always_true_ids)}")
+        if absent_ids:
+            print(f"    {spec_id} context never present:       {' '.join(absent_ids)}")
+
+    print(
+        "  exerc = made to fire. always-T = context present, assertion never "
+        "false.\n"
+        "  ctx-absent = no corpus document selects the rule's context, so the "
+        "rule\n"
+        "  never ran. unreach = of those, PROVEN impossible (human-reviewed; a\n"
+        "  corpus cannot establish it). undet = context not bucketable here, "
+        "never\n"
+        "  folded into another column. Covers the provisional rules the engine\n"
+        "  executes today, NOT the vendored published rulesets."
+    )
+
+
+def _quarantine_reason(profile_dir: Path) -> str | None:
+    """The `unavailable` string from the registry entry, if the profile is one.
+
+    Resolved from the registry rather than from a list in this file: the reason a
+    profile cannot run belongs next to the ruleset, in the reviewed 🔒 registry
+    entry, and there must be exactly one place to lift it from.
+
+    A corpus directory with no registry entry is NOT quarantined -- that is a
+    real error and _check_case must be allowed to report it.
+    """
+    try:
+        return load_spec(profile_dir.name).unavailable
+    except ValidatorError:
+        return None
 
 
 def _scrub_check(case: CorpusCase, document: bytes, report: Report) -> None:
@@ -164,6 +387,7 @@ def _check_case(case_path: Path, report: Report) -> None:
 
     document = document_path.read_bytes()
     _scrub_check(case, document, report)
+    _record_context_presence(case.spec.spec_id, document, report)
 
     try:
         response = run_validation(
@@ -181,6 +405,7 @@ def _check_case(case_path: Path, report: Report) -> None:
     actual_ids = [finding.rule_id for finding in response.findings]
     actual_set = set(actual_ids)
     expected_set = set(case.expect.fired_rules)
+    report.record_exercised(case.spec.spec_id, actual_set)
 
     if response.outcome != case.expect.outcome:
         report.fail(
@@ -290,10 +515,26 @@ def main(argv: list[str] | None = None) -> int:
     total_pass = total_fail = 0
 
     print(f"Golden File Corpus - {root}")
+    quarantine_notes: list[str] = []
     for profile_dir in profile_dirs:
         assert_fail_balance(profile_dir)  # §3.4 Rule A — raises SystemExit
         passes = len(list(profile_dir.glob("*_pass.expected.json")))
         fails = len(list(profile_dir.glob("*_fail.expected.json")))
+
+        reason = _quarantine_reason(profile_dir)
+        if reason is not None:
+            # Deliberately NOT counted toward total_cases / total_fail. A case
+            # that did not execute certified nothing, and letting it satisfy the
+            # M0 exit criterion is the "green while asserting nothing" failure
+            # the corpus exists to prevent. The debt is printed instead.
+            report.quarantined += passes + fails
+            quarantine_notes.append(f"{profile_dir.name}: {reason}")
+            print(
+                f"  {profile_dir.name:<16} {passes:>3} pass | {fails:>3} fail   "
+                f"balance ok   QUARANTINED (not run)"
+            )
+            continue
+
         total_pass += passes
         total_fail += fails
 
@@ -306,6 +547,11 @@ def main(argv: list[str] | None = None) -> int:
             f"balance ok   {status}"
         )
 
+    for note in quarantine_notes:
+        print(f"\n  QUARANTINED {note}")
+
+    _report_reachability(report)
+
     total_cases = total_pass + total_fail
 
     for problem in report.problems:
@@ -317,7 +563,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         f"\n{report.checked} cases run | {total_fail} expected-fail | "
-        f"{report.superset_cases} superset | {report.failed} problems"
+        f"{report.superset_cases} superset | {report.quarantined} quarantined | "
+        f"{report.failed} problems"
     )
 
     if report.failed:
@@ -330,10 +577,18 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if total_cases < MIN_CASES or total_fail < MIN_FAIL_CASES:
+        shortfall = (
+            f" {report.quarantined} further cases exist but are quarantined and did "
+            f"not run; they do not count, because a case that did not execute "
+            f"certified nothing. Close the gap with EXECUTABLE cases, or lift a "
+            f"quarantine by obtaining the ruleset it names."
+            if report.quarantined
+            else ""
+        )
         print(
             f"\nCORPUS TOO SMALL: {total_cases} cases ({total_fail} expected-fail). "
             f"M0 exit criterion 1 requires >= {MIN_CASES} cases and "
-            f">= {MIN_FAIL_CASES} expected-fail.",
+            f">= {MIN_FAIL_CASES} expected-fail.{shortfall}",
             file=sys.stderr,
         )
         return 1

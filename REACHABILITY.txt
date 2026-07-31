@@ -1,0 +1,135 @@
+REACHABILITY — what the corpus actually exercises
+=================================================================
+RECONSTRUCTED 2026-07-31. No REACHABILITY.txt existed in this working
+tree at the start of this session; see "PROVENANCE OF THIS FILE" at the
+foot. Every number below was re-measured this session from the bytes in
+this repository. Nothing is carried over on trust.
+
+
+1. EXECUTED COVERAGE (provisional rulesets — what `make check` runs)
+-------------------------------------------------------------------
+    profile          assert  exerc  always-T  ctx-absent  unreach  undet
+    en16931              26     12        14           0        0      0
+    pint-ae              32     15        17           0        0      0
+    TOTAL                58     27        31           0        0      0
+
+  exerc      made to fire by at least one case
+  always-T   context present, assertion evaluated, never once false
+  ctx-absent no corpus document selects the rule's context; never ran
+  unreach    of those, PROVEN impossible. Human-reviewed only; a corpus
+             cannot establish it by not having got there yet. Currently
+             empty by construction.
+  undet      context not bucketable by the runner; never silently folded
+             into another column.
+
+  The corpus reports 0 problems across 46 executed cases while 31 of 58
+  assertions have never once been false. ctx-absent is 0: those 31 are
+  not unreached, they are UNFALSIFIED. That is a negative-testing gap,
+  not a reachability gap, and it is the more precise diagnosis — every
+  one of those rules ran, on real fixtures, and nothing ever violated it.
+
+  Reported, NOT gated. Gating on this before the published rulesets are
+  executed would gate on the wrong denominator.
+
+
+2. PUBLISHED RULESETS — coverage against what we actually claim
+---------------------------------------------------------------
+  en16931  21 of 979 published assertions made to fire by the corpus
+  pint-ae  44 of 303
+
+  Both denominators were challenged and both were re-verified this
+  session by XML parse, not grep:
+
+  979 DOES NOT DOUBLE-COUNT.
+    EN16931-UBL-validation-preprocessed.sch carries 979 assert nodes
+    across 3 patterns (UBL-model 201, UBL-syntax 756, Codesmodel 22)
+    with 979 DISTINCT @id values and zero repeated IDs.
+    EN16931-UBL-codes.sch is a byte-equivalent duplicate of the
+    Codesmodel pattern already inside the preprocessed file — all 22
+    assertions match on (@id, @context, @test) exactly. Summing the two
+    files would give 1001; 979 is the preprocessed file alone and is
+    therefore already free of that duplication. No restatement required.
+
+  303 DOES NOT DOUBLE-COUNT.
+    trn-invoice/ and trn-creditnote/ are byte-identical to each other on
+    both file pairs (preprocessed 171 each, jurisdiction-aligned 132
+    each; invoice-only = 0, creditnote-only = 0 on both). Summing all
+    four files would give 606. 303 = 171 + 132 is the deduplicated
+    figure and is correct.
+
+
+3. A THIRD COPY OF EN 16931 IS VENDORED — and 1,301 does not reconcile
+----------------------------------------------------------------------
+  peppol-bis-3.0/published/CEN-EN16931-UBL.sch also carries 979
+  assertions and shares 978 rule IDs with
+  en16931/published/EN16931-UBL-validation-preprocessed.sch. The two
+  differ by exactly one ID each way:
+
+      only in en16931/published : UBL-SR-56
+      only in peppol/CEN        : BR-CO-25
+
+  So EN 16931 is vendored twice under two profiles. Any denominator that
+  sums across profile directories double-counts ~979 assertions.
+
+  Measured union of all distinct published rule IDs across the vendored
+  tree = 1442.
+      en16931 979 + pint-ae 303 + peppol-specific 159 = 1441
+      (the 1-rule gap is the UBL-SR-56 / BR-CO-25 divergence above)
+      naive sum of every published .sch file            = 2420
+
+  RULES.md states the hand-authoring burden as "1,301 published rules".
+  That figure reconciles with none of the measured combinations. It is
+  ~140 LOWER than the true distinct count, i.e. wrong in the direction
+  that makes the blocked work look smaller than it is. RULES.md is 🔒 —
+  correction proposed as a diff in rules-md-defects.patch, not applied.
+
+
+4. M0 EXIT CRITERION 1 COUNTS FILES, NOT RULES
+-----------------------------------------------
+  MIN_CASES = 60 counts corpus CASES (expectation files). It does not
+  count rules, and on this evidence the two are only weakly correlated:
+  46 executed cases exercise 27 of 58 provisional assertions, and the
+  en16931 roll of 2026-07-31 repaired 19 fixtures (95 changed lines)
+  while moving the exercised count by exactly zero.
+
+  Stated as a fact about what the gate measures. NOT a proposal to
+  change the gate.
+
+
+5. pint-ae/published/ INTEGRITY
+--------------------------------
+  Vendored, inert, unhashed; specs_audit.py is the only thing watching
+  them — and that changes when the published rulesets enter the registry
+  and are executed, at which point they fall under ruleset_hash.
+
+
+6. THE 2026-07-31 en16931 ROLL — WHAT IT MOVED AND WHAT IT DID NOT
+-------------------------------------------------------------------
+  19 of 20 en16931 fixtures repaired for EN 16931 conformance
+  (no_identifiers_pass excluded; its premise is false).
+
+  Against the PUBLISHED ruleset:  0/20 clean -> 9/20 clean
+      all 7 repaired _pass fixtures now conform exactly
+  Against the PROVISIONAL ruleset (what make check executes):
+      27/58 exercised -> 27/58 exercised.  NO CHANGE.
+      46 cases -> 46 cases.                NO CHANGE.
+      0 problems -> 0 problems.
+
+  The repairs are inert on the executed ruleset by construction: no
+  CDL-PROV-* rule references cac:TaxScheme, cbc:CompanyID, or the
+  BT-5/@currencyID relationship. The reported coverage metric is blind
+  to the entire class of work that makes a fixture conformant to the
+  standard the profile claims to implement.
+
+  That is the finding. The roll is real and the fixtures are genuinely
+  better; the number we report did not notice.
+
+
+PROVENANCE OF THIS FILE
+-----------------------
+  No REACHABILITY.txt, rules-md-defects.patch or specs-json-quarantine
+  .patch existed anywhere in this working tree, in any branch, stash or
+  worktree, at the start of the 2026-07-31 session. This file was
+  rebuilt from direct measurement rather than reconstructed from memory
+  of a prior session, and it deliberately contains nothing that was not
+  re-derived from bytes on that date.
