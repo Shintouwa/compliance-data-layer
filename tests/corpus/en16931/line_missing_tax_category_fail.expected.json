@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-line-missing-tax-category-fail",
+  "description": "The line Item carries no ClassifiedTaxCategory, so $taxCat is empty. CDL-PROV-018 is guarded by not(normalize-space($taxCat) != '') and therefore stays satisfied.",
+  "input": {
+    "file": "line_missing_tax_category_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-017"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-017": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-017": "BT-151"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

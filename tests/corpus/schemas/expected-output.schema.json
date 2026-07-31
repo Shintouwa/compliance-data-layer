@@ -100,8 +100,13 @@
       }
     },
     "provenance": {
-      "enum": ["synthetic", "client_derived", "spec_example"],
-      "description": "client_derived files are scrubbed before commit — enforced by §3.4 Rule B in the corpus runner."
+      "enum": [
+        "synthetic",
+        "client_derived",
+        "spec_example",
+        "mechanically_derived_pending_review"
+      ],
+      "description": "client_derived files are scrubbed before commit — enforced by §3.4 Rule B in the corpus runner. mechanically_derived_pending_review marks a case whose document was built by mutating a known-conformant fixture to violate one named rule, with fired_rules derived from that rule's @test rather than from engine output; it is NOT scrubbed, because such a case contains no client value by construction, and it carries no human sign-off yet."
     },
     "added_in": {
       "type": "string",

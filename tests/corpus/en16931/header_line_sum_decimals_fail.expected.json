@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-header-line-sum-decimals-fail",
+  "description": "BT-106 carries three decimals. CDL-PROV-014 tests matches(string($hdrLines), '^-?[0-9]+(\\.[0-9]{1,2})?$'). CDL-PROV-011 still passes: 1000.000 and the line sum 1000.00 are equal as xs:decimal.",
+  "input": {
+    "file": "header_line_sum_decimals_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-014"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-014": "rounding"
+    },
+    "business_terms": {
+      "CDL-PROV-014": "BT-106"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

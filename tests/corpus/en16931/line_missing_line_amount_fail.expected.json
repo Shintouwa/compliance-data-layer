@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-line-missing-line-amount-fail",
+  "description": "The line has no BT-131. The header sum is set to 0.00 so that CDL-PROV-011 stays satisfied and this case isolates CDL-PROV-016 rather than compounding an arithmetic failure onto it.",
+  "input": {
+    "file": "line_missing_line_amount_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-016"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-016": "missing_mandatory"
+    },
+    "business_terms": {
+      "CDL-PROV-016": "BT-131"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

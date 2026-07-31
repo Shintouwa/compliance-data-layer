@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-supplier-country-code-malformed-fail",
+  "description": "The seller country is the alpha-3 'ARE'. CDL-PROV-026 tests matches(..., '^[A-Z]{2}$') -- a regex, not a code list, so this fires regardless of ISO 3166 being a partial list.",
+  "input": {
+    "file": "supplier_country_code_malformed_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-026"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-026": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-026": "BT-40"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

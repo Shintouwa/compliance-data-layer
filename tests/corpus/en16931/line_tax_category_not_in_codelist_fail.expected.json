@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-line-tax-category-not-in-codelist-fail",
+  "description": "BT-151 is 'Q'. UNTDID 5305 is the one code list marked complete, so it is the one list permitted to deny validity. CDL-PROV-017 passes because the value is non-empty; the VAT breakdown keeps 'S' so CDL-PROV-024 is untouched.",
+  "input": {
+    "file": "line_tax_category_not_in_codelist_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-018"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-018": "invalid_code"
+    },
+    "business_terms": {
+      "CDL-PROV-018": "BT-151"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

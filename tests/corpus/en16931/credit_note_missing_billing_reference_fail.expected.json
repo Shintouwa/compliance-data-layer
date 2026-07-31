@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-credit-note-missing-billing-reference-fail",
+  "description": "A credit note with no BT-25 lineage. This is the only case in the corpus that opens the cdl-core-creditnote pattern on a violating document -- architecture.md Part I Section 2.5 records BT-25 absence as a top-8 rejection cause.",
+  "input": {
+    "file": "credit_note_missing_billing_reference_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-022"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-022": "cross_field_dependency"
+    },
+    "business_terms": {
+      "CDL-PROV-022": "BT-25"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-currency-code-not-in-codelist-fail",
+  "description": "BT-5 is XYZ: three upper-case letters, so CDL-PROV-006 stays satisfied and only the code-list arm CDL-PROV-007 fires. Warning severity, so CDL-PROV-026 is carried deliberately and declared.",
+  "input": {
+    "file": "currency_code_not_in_codelist_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-007",
+      "CDL-PROV-026"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-007": "invalid_code",
+      "CDL-PROV-026": "identifier_invalid"
+    },
+    "business_terms": {
+      "CDL-PROV-007": "BT-5",
+      "CDL-PROV-026": "BT-40"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-header-tax-amount-decimals-fail",
+  "description": "BT-110 carries three decimals. CDL-PROV-015 tests the same two-decimal pattern against $taxTotal = cac:TaxTotal/cbc:TaxAmount[1]. CDL-PROV-012 still passes: 1050.00 = 1000.00 + 50.000 as xs:decimal.",
+  "input": {
+    "file": "header_tax_amount_decimals_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-015"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-015": "rounding"
+    },
+    "business_terms": {
+      "CDL-PROV-015": "BT-110"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

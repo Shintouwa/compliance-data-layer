@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-tax-subtotal-category-not-in-codelist-fail",
+  "description": "BT-118 in the VAT breakdown is 'Q'. The line keeps 'S', so this case isolates CDL-PROV-024 from CDL-PROV-018.",
+  "input": {
+    "file": "tax_subtotal_category_not_in_codelist_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-024"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-024": "invalid_code"
+    },
+    "business_terms": {
+      "CDL-PROV-024": "BT-118"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}

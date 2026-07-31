@@ -1,0 +1,30 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-payable-amount-mismatch-fail",
+  "description": "BT-115 is 1000.00 where BT-112 is 1050.00 and there is no BT-113 prepaid amount. CDL-PROV-012 compares a different triple and stays satisfied.",
+  "input": {
+    "file": "payable_amount_mismatch_fail.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "fail",
+    "match": "exact",
+    "fired_rules": [
+      "CDL-PROV-025"
+    ],
+    "must_not_fire": [],
+    "failure_classes": {
+      "CDL-PROV-025": "arithmetic_mismatch"
+    },
+    "business_terms": {
+      "CDL-PROV-025": "BT-115"
+    },
+    "value_shapes": {}
+  },
+  "provenance": "mechanically_derived_pending_review",
+  "added_in": "week-04"
+}
