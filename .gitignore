@@ -22,3 +22,28 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.log
+
+# ---------------------------------------------------------------------------
+# Commercially sensitive — this repository is PUBLIC.
+#
+# These were committed once and purged from all history on 2026-07-31 with
+# git-filter-repo. They are kept in the working tree because the toolchain and
+# the source comments still refer to them; they must never re-enter a commit.
+#
+# Anything containing milestone plans, revenue figures, covenants, pricing or
+# vendor cost strategy belongs in this block, not in the repository.
+# ---------------------------------------------------------------------------
+Compliance-Data-Layer-Master-Roadmap-v6.1.docx
+*.docx
+architecture.md
+claude.md
+scratchpad/
+**/scratchpad/
+
+# Working patches — intermediate diffs, frequently carry unredacted context.
+*.patch
+*.diff
+
+# The engineering-only agent brief is deliberately NOT ignored: it contains no
+# commercial material and CI has no dependency on the two files above.
+!apps/validator/CLAUDE.md
