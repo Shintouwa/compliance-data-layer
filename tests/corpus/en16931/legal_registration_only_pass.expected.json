@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/expected-output.schema.json",
+  "case_id": "en16931-legal-registration-only-pass",
+  "description": "Seller carries a legal registration identifier (BT-30) alongside its VAT identifier. EN 16931 accepts any of BT-29/BT-30/BT-31 for seller identification (BR-CO-26), so this conforms to the core model; the same document fails under pint-ae, whose identifier_rules.trn requires a bare 15-digit TRN. Replaces en16931-no-identifiers-pass, whose premise -- that the core model requires no seller identifier at all -- is contradicted by BR-CO-26 and BR-S-02.",
+  "input": {
+    "file": "legal_registration_only_pass.xml",
+    "syntax": "UBL-2.1"
+  },
+  "spec": {
+    "spec_id": "en16931",
+    "version": "RESOLVE_IN_WEEK_1"
+  },
+  "expect": {
+    "outcome": "pass",
+    "match": "exact",
+    "fired_rules": [],
+    "must_not_fire": [],
+    "failure_classes": {},
+    "business_terms": {},
+    "value_shapes": {}
+  },
+  "provenance": "synthetic",
+  "added_in": "week-04"
+}
