@@ -1,0 +1,54 @@
+# Local Postgres for development only. architecture.md Part I §2.2, §2.10.
+#
+# Neon remains the database for CI (scripts/neon-branch-migrate.sh) and Vercel
+# production. This container exists so `make dev` / `make migrate` do not need
+# a network round-trip to Neon on every iteration.
+#
+# ROLE PROVISIONING — read before "fixing" this file.
+#
+# architecture.md and packages/db/policies/001_roles_and_grants.sql (🔒,
+# CLAUDE.md §4.3) already define how the three roles (app_user, corpus_writer,
+# readonly_analytics) come into being: in Neon a human provisions them via the
+# console; against a fresh database, 001_roles_and_grants.sql itself creates
+# whichever of the three are missing, using the *_PW psql variables that
+# `make migrate` passes it. That logic is 🔒 — this file does not duplicate it.
+#
+# So here, POSTGRES_USER is set to `app_user` rather than `postgres`. The
+# official postgres image grants POSTGRES_USER superuser, which makes app_user
+# locally the same kind of "owns everything, can create roles" account that
+# the Neon project's default role is in production — and it is exactly the
+# account `make migrate` already uses to run `drizzle-kit migrate` and then
+# 001_roles_and_grants.sql, which creates corpus_writer and readonly_analytics
+# on first run using CORPUS_WRITER_PW / ANALYTICS_PW from your `.env`.
+#
+# Net effect: `docker compose up -d postgres && make migrate` produces all
+# three roles, on the same code path Neon uses. Nothing here creates a role
+# directly.
+name: compliance-data-layer
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: ${APP_USER_PW:?Set APP_USER_PW in .env — copy .env.example to .env first}
+      POSTGRES_DB: compliance_data_layer
+      PGDATA: /var/lib/postgresql/data/pgdata
+    # Schemas are created by `drizzle-kit migrate` (packages/db/schema/*.ts use
+    # pgSchema, so every generated statement is already schema-qualified — this
+    # is convenience for manual `psql` sessions, not something the app or
+    # drizzle-kit depends on).
+    command: ['postgres', '-c', 'search_path=app,client_data,corpus,public']
+    volumes:
+      - cdl_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U app_user -d compliance_data_layer']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  cdl_postgres_data:
