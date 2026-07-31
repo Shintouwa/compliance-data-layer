@@ -16,7 +16,30 @@
     "$comment": "esbuild is vitest's bundler and needs its postinstall to place a platform binary. Declared explicitly rather than left to an interactive `pnpm approve-builds`, so a fresh clone and CI behave identically.",
     "onlyBuiltDependencies": [
       "esbuild"
-    ]
+    ],
+    "$overridesComment": [
+      "CI runs `pnpm audit --audit-level high` as a blocking gate. These two are",
+      "transitive dev-only advisories with no direct dependency to bump, so they",
+      "are pinned forward here rather than by lowering the audit threshold.",
+      "",
+      "js-yaml       GHSA-52cp-r559-cp3m  merge-key chains -> quadratic CPU",
+      "              via openapi-typescript > @redocly/openapi-core.",
+      "              4.3.0 is the patched release and the newest 4.x; the range",
+      "              selector leaves 5.x alone so this does not force a major",
+      "              bump on a transitive consumer.",
+      "",
+      "brace-expansion  GHSA-mh99-v99m-4gvg  unbounded expansion -> OOM",
+      "              via eslint > minimatch and @redocly/openapi-core > minimatch.",
+      "              Upstream patched only the 5.x line (>=5.0.8); there is no",
+      "              fixed 1.x or 2.x, so the override crosses majors by",
+      "              necessity. Verified against the full `make check`.",
+      "",
+      "Both are build-time only and never ship in the sidecar image."
+    ],
+    "overrides": {
+      "js-yaml@<4.3.0": "^4.3.0",
+      "brace-expansion@<5.0.8": "^5.0.8"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
