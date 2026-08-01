@@ -68,3 +68,6 @@ scratchpad/
 # per-package CLAUDE.md needs its own exception. Add one when you add a package.
 !apps/validator/CLAUDE.md
 !apps/web/CLAUDE.md
+"Api Keys.txt" 
+"Api Keys.txt" 
+"Api Keys.txt" 
