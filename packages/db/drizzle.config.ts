@@ -11,7 +11,17 @@
  * asserts coverage independently (§3.5).
  */
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { config as loadEnv } from 'dotenv';
 import { defineConfig } from 'drizzle-kit';
+
+// `make migrate` runs drizzle-kit from packages/db (see comment below), but
+// .env lives at the repo root, so the default `dotenv/config` CWD lookup
+// misses it — point at it explicitly.
+const here = path.dirname(fileURLToPath(import.meta.url));
+loadEnv({ path: path.resolve(here, '../../.env') });
 
 export default defineConfig({
   dialect: 'postgresql',
